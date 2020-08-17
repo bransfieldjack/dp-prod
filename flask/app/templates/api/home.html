@@ -1,0 +1,152 @@
+{% extends 'home-base.html' %} {% block content %}
+
+<template>
+
+    <v-container>
+
+        <v-row>
+            <v-col cols="12" md="4">
+                <template>
+                    <a href="{{ url_for('annotation.annotation') }}" style="text-decoration: none;">
+                        <v-card
+                            color="#35B4CF"
+                            dark
+                        >
+                            <v-row>
+                                <v-col cols="12" md="12">
+                                    <v-card-title class="headline">
+                                        <img src="https://img.icons8.com/dusk/64/A81C84/activity-grid.png"/>
+                                    </v-card-title>
+                                </v-col>
+                            </v-row>
+                            <v-row>
+                                <v-col cols="12" md="12">
+                                    <v-card-title class="headline">Annotate Datasets</v-card-title>
+                                    <v-card-subtitle>Browse all private and public datasets.</v-card-subtitle>
+                                </v-col>
+                            </v-row>
+                            <v-row>
+                                <v-col cols="12" md="12">
+                                    <v-card-actions>
+                                        <v-spacer></v-spacer>
+                                    </v-card-actions>
+                                </v-col>
+                            </v-row>
+                        </v-card>
+                    </a>
+                </template>
+            </v-col>
+            <v-col cols="12" md="4">
+                <template>
+                    <a href="{{ url_for('atlas.atlas') }}" style="text-decoration: none;">
+                        <v-card
+                            color="#35B4CF"
+                            dark
+                        >
+                            <v-row>
+                                <v-col cols="12" md="12">
+                                    <v-card-title class="headline">
+                                        <img src="https://img.icons8.com/dusk/64/A81C84/scatter-plot.png"/>
+                                    </v-card-title>
+                                </v-col>
+                            </v-row>
+                            <v-row>
+                                <v-col cols="12" md="12">
+                                    <v-card-title class="headline">Atlas Data</v-card-title>
+                                    <v-card-subtitle>Browse iMAC and Blood atlas Datasets.</v-card-subtitle>
+                                </v-col>
+                            </v-row>
+                            <v-row>
+                                <v-col cols="12" md="12">
+                                    <v-card-actions>
+                                        <v-spacer></v-spacer>
+                                    </v-card-actions>
+                                </v-col>
+                            </v-row>
+                        </v-card>
+                    </a>
+                </template>
+            </v-col>
+            <v-col cols="12" md="4">
+                <template>
+                    <a href="{{ url_for('dataset_upload.new_dataset') }}" style="text-decoration: none;">
+                        <v-card
+                            color="#35B4CF"
+                            dark
+                        >
+                            <v-row>
+                                <v-col cols="12" md="12">
+                                    <v-card-title class="headline">
+                                        <img src="https://img.icons8.com/wired/64/A81C84/document.png"/>
+                                    </v-card-title>
+                                </v-col>
+                            </v-row>
+                            <v-row>
+                                <v-col cols="12" md="12">
+                                    <v-card-title class="headline">Add a Dataset</v-card-title>
+                                    <v-card-subtitle>Upload a new Dataset to the Dataportal.</v-card-subtitle>
+                                </v-col>
+                            </v-row>
+                            <v-row>
+                                <v-col cols="12" md="12">
+                                    <v-card-actions>
+                                        <v-spacer></v-spacer>
+                                    </v-card-actions>
+                                </v-col>
+                            </v-row>
+                        </v-card>
+                    </a>
+                </template>
+            </v-col>
+            
+        </v-row>
+
+        <v-row>
+            <v-col cols="12" md="4">
+                <template>
+                    <a href="{{ url_for('governance.governance') }}" style="text-decoration: none;">
+                        <v-card
+                            color="#35B4CF"
+                            dark
+                        >
+                            <v-row>
+                                <v-col cols="12" md="12">
+                                    <v-card-title class="headline">
+                                        <img src="https://img.icons8.com/officel/64/A81C84/gears.png"/>
+                                    </v-card-title>
+                                </v-col>
+                            </v-row>
+                            <v-row>
+                                <v-col cols="12" md="12">
+                                    <v-card-title class="headline">Governance</v-card-title>
+                                    <v-card-subtitle>View User Interactions with the Dataportal.</v-card-subtitle>
+                                </v-col>
+                            </v-row>
+                            <v-row>
+                                <v-col cols="12" md="12">
+                                    <v-card-actions>
+                                        <v-spacer></v-spacer>
+                                    </v-card-actions>
+                                </v-col>
+                            </v-row>
+                        </v-card>
+                    </a>
+                </template>
+            </v-col>
+
+            <v-col cols="12" md="4">
+               
+            </v-col>
+
+            <v-col cols="12" md="4">
+               
+            </v-col>
+
+            
+        </v-row>
+
+    </v-container>        
+
+</template>
+
+{% endblock %}

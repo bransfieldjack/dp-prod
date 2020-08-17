@@ -1,0 +1,624 @@
+{% extends 'atlas-base.html' %} {% block content %}
+
+<v-tabs 
+    background-color="#35B4CF"
+    class="elevation-2"
+  >
+
+    <v-tab class="white--text">Datasets <img src="https://img.icons8.com/dusk/32/A81C84/activity-grid.png"/></v-tab>
+
+    <v-tab class="white--text">Samples <img src="https://img.icons8.com/dusk/32/A81C84/scatter-plot.png"/></v-tab>
+
+    <v-tab-item>
+    
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel" style="color: #A81C84;">Dataset ID: [[selected_dataset]]</h5>
+            <button type="button" class="close" data-dismiss="modal" style="color: #6A76AB;" aria-label="Close" @click=destroyGrid()>
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+        
+          <div class="modal-body">
+
+            <template>
+              <v-tabs
+              right
+              
+              background-color="#35B4CF"
+              dark
+              >
+                
+                <v-tab active></v-tab>
+                <!-- <v-tab @click="datasetMetadata">Metadata</v-tab> -->
+
+                <v-tab-item active>
+                  <nav class="navbar navbar-expand-lg" style="background-color:#35B4CF">
+              
+                    <button class="navbar-toggler navbar-light" type="button" data-toggle="collapse"  data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                      <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                      <ul class="navbar-nav mr-auto">
+
+                        <v-dialog
+                          v-model="innerModalDialog"
+                          width="500"
+                          scrollable
+                        >
+
+
+                          <template v-slot:activator="{ on }">
+                            <v-dialog
+                            v-model="dialog"
+                            width="500"
+                          >
+                            <template v-slot:activator="{ on }">
+                              <v-btn
+                                color="#35B4CF"
+                                dark
+                                v-on="on"
+                                tile
+                              >
+                                Help
+                              </v-btn>
+                            </template>
+                      
+                            <v-card>
+                              <v-container fluid>
+                              <v-row no-gutterss>
+
+                                <v-col cols="12" sm="6">
+                                  <v-img
+                                    fluid src="https://dataportal-api-github.s3-ap-southeast-2.amazonaws.com/how_to_column.gif"
+                                    height="350"
+                                    width="250"
+                                  ></v-img>
+                                </v-col>
+
+                                <v-col cols="12" sm="6">
+                                  <br>
+                                  <h6 style="color: #35B4CF;">
+                                    You can select one column at a time.
+                                  </h6>
+                                  <hr style="color: #35B4CF;">
+                                  <h6 style="color: #35B4CF;">
+                                    You can select as many rows per column as you like.
+                                  </h6>
+                                  <hr style="color: #35B4CF;">
+                                  <h6 style="color: #35B4CF;">
+                                    Selecting a value outside of the selected column will reset the grid, and all current selections.
+                                  </h6>
+                                </v-col>
+
+                              </v-row>
+                            </v-container>
+                              
+                      
+                              <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn
+                                  color="#6A76AB"
+                                  text
+                                  @click="dialog = false"
+                                >
+                                  Close
+                                </v-btn>
+                              </v-card-actions>
+                            </v-card>
+
+                          </v-dialog>                   
+
+                            <v-btn
+                              color="#35B4CF"
+                              tile
+                              dark
+                              @click="inDev()"
+                            >
+                              <!-- v-on="on" -->
+                              Columns
+                            </v-btn>
+
+                            <v-btn
+                              color="#35B4CF"
+                              tile
+                              dark
+                              @click="clearGrid()"
+                            >
+                              Clear
+                            </v-btn>
+
+                          </template>
+                          
+
+                          <v-card>
+                            <v-card-title
+                              class="headline"
+                              primary-title
+                              style="color: #6A76AB;"
+                            >
+                              Select columns to hide:
+                            </v-card-title>
+
+                            <v-card-text >
+
+                              <v-container fluid >  
+                        
+                                <v-row>
+                                  
+                                  <v-col cols="12" sm="2"></v-col>
+
+                                    <v-col cols="12" sm="10">
+
+                                      <v-checkbox
+                                        v-for="(item, key, index) in columnDefs"
+                                        color="#6A76AB"
+                                        v-model="item.hide"
+                                        :label="`${[[item.field]]}`"
+                                      ></v-checkbox>
+                                      
+                                    </v-col>
+                                    
+                                  <v-col cols="12" sm="2"></v-col>
+                              
+                                </v-row>
+                              
+                              </v-container>
+
+                  
+                            </v-card-text>
+
+                            <v-divider></v-divider>
+
+                            <v-card-actions>
+                              <v-spacer></v-spacer>
+                              <v-btn
+                                color="#6A76AB"
+                                text
+                                @click="innerModalDialog = false; updateColumns()"
+                              >
+                                Close
+                              </v-btn>
+                            </v-card-actions>
+                          </v-card>
+                          
+                        </v-dialog>
+
+                      </ul>
+
+                      <v-row align="center" justify="center">
+                        <v-col cols="12" md="5"></v-col>
+            
+                        <v-col cols="12" md="2">
+                          <v-select
+                            color="#6A76AB"
+                            dense
+                            :items="atlas"
+                            v-model="atlasModel"
+                            :label="`${atlasModel}`"
+                          ></v-select>
+                        </v-col>
+            
+                        <v-col cols="12" md="2">
+                          <v-select
+                            color="#6A76AB"
+                            dense
+                            :items="tierItems"
+                            v-model="tierModel"
+                            :label="`${tierModel}`"
+                          ></v-select>
+                        </v-col>
+            
+                        <v-col cols="12" md="2">
+                          <v-btn
+                            color="#35B4CF"
+                            dark
+                            tile
+                            @click="updateGrid()"
+                            >
+                            Update
+                          </v-btn>
+                        </v-col>
+            
+                        <v-col cols="12" md="1"></v-col>
+                      </v-row>
+                          
+                      <form class="form-inline my-2 my-lg-0">
+                        
+                        <template>
+                          <div class="text-center">
+                            <v-menu offset-x
+                            :close-on-content-click="false"
+                            transition="slide-x-transition">
+                              <template v-slot:activator="{ on }">
+          
+                                <v-btn
+                                  color="#35B4CF"
+                                  dark
+                                  tile
+                                  @click="downloadCSV()"
+                                >
+                                Download
+                                </v-btn>
+              
+                                <v-btn
+                                  color="#35B4CF"
+                                  dark
+                                  tile
+                                  v-on="on"
+                                >
+                                Selected: [[cellRowUpdateValues.count]]
+                                </v-btn>
+            
+                              </template>
+                              <v-list>
+                                <v-list-item>
+
+                                  <v-row>
+                                    <v-col cols="12" sm="6">
+                                      <v-text-field
+                                        color="#6A76AB"
+                                        label="New Value"
+                                        outlined
+                                        v-model="commitValue"
+                                      ></v-text-field>
+                                    </v-col>
+                                    <v-col cols="12" sm="6">
+                                      <v-btn
+                                        color="#35B4CF"
+                                        dark
+                                        block
+                                        @click="updateAtlas();"
+                                      >
+                                      Save
+                                      </v-btn>
+                                    </v-col>
+                                  </v-row>
+
+                                </v-list-item>
+                              </v-list>
+                            </v-menu>
+                          </div>
+                        </template>
+
+                      </form>
+
+                      <v-dialog
+                          v-model="commitModalDialog"
+                          width="500"
+                          scrollable
+                      >
+                      <v-card class="scroll">
+                        <v-container fluid> 
+                          <v-row>
+
+                            <v-col cols="10">
+                              <h5 style="color: #35B4CF;">[[cellRowUpdateValues.column]]</h5>
+                            </v-col>
+
+                            <v-col cols="2">
+                              <v-btn color="#6A76AB" icon dark @click="commitModalDialog = false">
+                                <v-icon>mdi-close</v-icon>
+                              </v-btn>
+                            </v-col>
+                            
+
+                          </v-row>
+                          <v-row>
+                            <v-col cols="12" sm="12">
+                              
+                              <br>
+                              <v-expansion-panels
+                        
+                                
+                                multiple
+                              >
+                                <v-expansion-panel>
+                                  <v-expansion-panel-header><p style="color: #A81C84;">Selected Samples: [[cellRowUpdateValues.count]]</p></v-expansion-panel-header>
+                                  <v-expansion-panel-content v-for="item in cellRowUpdateValues.row"> 
+                                    <p style="color: #35B4CF;">[[item]]</p>
+                                  </v-expansion-panel-content>
+                                </v-expansion-panel>
+                              </v-expansion-panels>
+
+                              <br>
+                              <br>
+
+                              <div>
+                                  <b-form-textarea
+                                    id="textarea"
+                                    v-model="commitValue"
+                                    placeholder="Enter something..."
+                                    rows="3"
+                                    max-rows="6"
+                                  ></b-form-textarea>
+                              </div>
+                            </v-col>
+                          </v-row>
+                          
+                          <v-row no-gutters>
+
+                            <v-col cols="12" sm="6">
+                            </v-col>
+
+                            <v-col cols="12" sm="6">
+                              <v-btn
+                                color="#35B4CF"
+                                dark
+                                block
+                                @click="updateSamples(); clearGrid()"
+                              >
+                              Save
+                              </v-btn>
+                            </v-col>
+
+                          </v-row>
+
+                        </v-container>
+                      </v-card>
+                      </v-dialog>
+
+                    </div>
+                  </nav>
+
+                  <div id="myGrid" style="height: 600px; width: 100%;" class="ag-theme-balham"></div>
+                </v-tab-item>
+                
+                <v-tab-item style="background-color: #35B4CF;">
+                
+                  <v-container >
+                    
+                    <v-row>
+                      <v-col cols="12">
+              
+                        <v-card >
+
+                          <v-row>
+                            <v-col cols="10" md="10"></v-col>
+                            <v-col cols="2" md="2">
+                              <v-card-actions>
+                                <a :href="'https://www.ncbi.nlm.nih.gov/pubmed/?term=' + selected_pubmed" target="_blank" style="color: #35B4CF;">Pubmed</a>                              
+                              </v-card-actions>
+                            </v-col>
+                            <!-- <v-col cols="1" md="1"></v-col> -->
+                          </v-row>
+                          
+
+                            <br>
+                            <br>
+
+                              <v-col cols="12" sm="12">  
+
+                                <!-- [[selected_dataset_metadata]] -->
+                                
+                                <v-card-text v-for="(item, index) in selected_dataset_metadata"
+                                :key="item"
+                                >
+                                  <h4 style="color: #A81C84;">[[index]]:</h4>
+                                  <p style="color: #35B4CF;"> [[item]]</p>
+                                </v-card-text>
+                                
+                              </v-col>
+
+                        </v-card>
+
+                      </v-col>
+                  
+                    </v-row>
+                    
+                    <br>
+                    <br>
+            
+                  </v-container>
+
+                </v-tab-item>
+
+              </v-tabs>
+            </template>
+
+            
+
+          </div>
+      
+        </div>
+      </div>
+    </div>
+
+    <v-row>
+      <v-col cols="1" md="1"></v-col>
+      <v-col cols="1" md="1">
+        <!-- <v-switch
+          dense
+          color="#35B4CF"
+          v-model="datasetSearchShowBlood"
+          label="Blood"
+        ></v-switch> -->
+      </v-col>
+      <v-col cols="1" md="1">        
+        <!-- <v-switch
+          dense
+          color="#35B4CF"
+          v-model="datasetSearchShowiMAC"
+          label="iMAC"
+        ></v-switch> -->
+      </v-col>
+      <v-col cols="9" md="9"></v-col>
+
+    </v-row>
+
+    <v-card>
+
+      <v-row>
+
+          <v-col cols="1" md="1"></v-col>
+            <v-col cols="7" md="7">
+
+              <v-combobox
+                v-model="comboBoxSearch"
+                :items="comboBoxItems"
+                deletable-chips
+                class="tag-input"
+                dense
+                color="#6A76AB"
+                small-chips
+                label="Search Datasets"
+                multiple
+                clearable
+                @keydown.enter="comboBoxFilter()"
+              ></v-combobox>
+
+            </v-col>
+
+      
+            <v-col cols="2" md="2">
+              <v-btn
+                color="#35B4CF"
+                dark
+                block
+                @click="comboBoxFilter()">
+                Search
+              </v-btn>
+            </v-col>
+
+            <v-col cols="1" md="1"></v-col>
+
+    </v-row>
+
+    <v-row>
+      <v-col cols="1" md="1"></v-col>
+        <v-col cols="10" md="10">
+          
+          <v-data-table
+            multi-sort
+            loading-text="Loading datasets... Please wait"
+            :headers="headers"
+            :items="filtered"
+            @click:row="handleClick"
+          >
+
+          </v-data-table>
+
+          <br>
+          <br>
+          <br>
+          <br>
+          <br>
+          <br>
+
+        </v-col>
+      <v-col cols="1" md="1"></v-col>
+    </v-row>
+
+    </v-card>
+
+    </v-tab-item>
+
+    <v-tab-item>
+
+      <template>
+        <div class="text-center">
+          <v-dialog
+            v-model="samplesGridDialog"
+            width="500"
+          >
+          
+            <v-card>
+
+              <v-card-text>
+                <v-container>
+                  
+                    <v-row>
+                        <v-col cols="12" sm="6" md="4" v-for="(item, key, index) in samplesGridClickedObject">
+                            <v-text-field :disabled="key == 'dataset_id' || key == 'sample_id' " v-model="item" v-bind:label=[[key]]></v-text-field>
+                        </v-col>
+                    </v-row>
+
+                    <br>
+
+                    <v-row>
+                      <v-col cols="12" md="8"></v-col>
+                      
+                      <v-col cols="12" md="2">
+                        <a>Save<v-img  src="https://img.icons8.com/cotton/64/000000/save.png"/></a>
+                      </v-col>
+                      <v-col cols="12" md="2">
+                        <a @click="samplesGridDialog = false">Cancel<img src="https://img.icons8.com/flat_round/40/000000/circled-left.png"/></a>
+                      </v-col>
+                    </v-row>
+
+                </v-container>
+              </v-card-text>
+
+
+            </v-card>
+          </v-dialog>
+        </div>
+      </template>
+
+      <v-card>
+
+        <br>
+        <br>
+        <br>
+        <br>
+    
+        <v-row>
+          
+          <v-col cols="1" md="1"></v-col>
+            <v-col cols="10" md="10">
+
+              <v-text-field
+                v-model="samplesSearch"
+                single-line
+                hide-details
+                class="tag-input"
+                color="#6A76AB"
+                label="Search Samples"
+              ></v-text-field>
+
+            </v-col>
+
+          <v-col cols="1" md="1"></v-col>
+  
+      </v-row>
+  
+      <v-row>
+        <v-col cols="1" md="1"></v-col>
+          <v-col cols="10" md="10">  
+            <!-- :loading="samplesTableLoading" -->
+            <v-data-table
+              multi-sort
+              loading-text="Loading datasets... Please wait"
+              :headers="samplesSearchTableColumns"
+              :items="samplesSearchTableRows"
+              :search="samplesSearch"
+              @click:row="handleSamplesClick"
+            >
+  
+            </v-data-table>
+  
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+  
+          </v-col>
+        <v-col cols="1" md="1"></v-col>
+      </v-row>
+  
+      </v-card>
+
+    </v-tab-item>
+
+    </template>
+    </v-app>
+    </div>
+
+
+
+{% endblock %}

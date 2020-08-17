@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- UIkit CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.5.6/dist/css/uikit.min.css" />
+
+  <!-- UIkit JS -->
+  <script src="https://cdn.jsdelivr.net/npm/uikit@3.5.6/dist/js/uikit.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/uikit@3.5.6/dist/js/uikit-icons.min.js"></script>
+
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+  <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+  <script src="https://unpkg.com/ag-grid-community/dist/ag-grid-community.min.noStyle.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/dist/styles/ag-grid.css">
+  <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/dist/styles/ag-theme-balham.css">
+  <title>Dataportal</title>
+  <link rel="icon" href="https://dataportal-data.s3-ap-southeast-2.amazonaws.com/static/images/favicon-32x32.png">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  <a href="https://icons8.com/icon/41615/search"></a>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.1.0/papaparse.min.js"></script>
+  <script src="https://unpkg.com/ag-grid-community/dist/ag-grid-community.min.noStyle.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/dist/styles/ag-grid.css">
+  <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/dist/styles/ag-theme-balham.css">
+  
+<style>
+
+.tag-input span.v-chip {
+  color: #6A76AB;
+}
+
+.gridPurple {
+    background-color:#6A76AB;
+    color: white;
+}
+.grey {
+    background-color:#e6e6e6;
+    color: white;
+}
+
+.full-screen-modal-dialog {
+    max-width: 100%;
+    margin: 0;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100vh;
+    display: flex;
+}
+
+.modal-dialog {
+  max-width: 80% !important;
+}
+
+.btn {
+    background-color: white !important;
+    color: #6A76AB;
+    outline-color:#6A76AB;
+}
+
+.navbar {
+    background-color: white !important;
+}
+
+</style>
+
+</head>
+
+<body>
+  <div id="app">
+    <v-app>
+
+      <template>
+        
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a href="{{ url_for('home.home') }}">
+                <img
+                    src="https://dataportal-data.s3-ap-southeast-2.amazonaws.com/static/images/test_logo.PNG"
+                    alt="sm4_logo"
+                    width="120"
+                >
+            </a>
+
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+
+          <p style="color: #A81C84;">{{ user }}</p>
+        
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+            </ul>
+            <form class="form-inline my-2 my-lg-0"
+                enctype="multipart/form-data"
+                action="{{ url_for('api_login.api_logout') }}"
+                id="loginForm" 
+                method="POST"
+            >
+                <v-btn tile color="#A81C84" class="white--text"><input method="POST" id="submit3" type="submit" value="logout"></v-btn>
+            </v-form>
+
+          </div>
+        </nav>
+
+        <br>
+        <br>
+        <br>
+
+        {% block content %} 
+        
+        {% endblock %}
+
+        <v-footer
+          color="#A81C84"
+          app
+        >
+          <span class="white--text">Stemformatics | Dataportal | 2020</span>
+        </v-footer>
+
+    </template>
+
+  </v-app>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+  <script>
+
+    var vm = new Vue({
+      el: '#app',
+      vuetify: new Vuetify(),
+      delimiters: ['[[',']]'],  // Change to '[[ ]]' otherwise the standard vue.js template '{}' parenthesis will interfere with flasks jinja templates. 
+      data:{
+        rowData: [],
+        columnData: [
+            { text: 'Name', sortable: true, value: 'name'},
+            { text: 'Role', sortable: true, value: 'role' },
+            // { text: 'Notes', sortable: true, value: 'notes' },
+            { text: 'Date', sortable: true, value: 'date' },
+        ],
+        expanded: [],
+        singleExpand: false,
+      },
+      methods: {
+      
+      },
+      computed: {
+        
+      },
+      mounted: function(){
+
+        axios.post("/governance_table_mongo")
+        .then(result => this.rowData = result.data.map(function(item){
+            return {"name": item.name, "role": item.role, "notes": item.notes, "date": item.date}
+        })); 
+
+      }
+    })
+  </script>
+
+  
+
+</body>
+</html>
+

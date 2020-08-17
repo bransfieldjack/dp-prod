@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- UIkit CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.5.6/dist/css/uikit.min.css" />
+
+  <!-- UIkit JS -->
+  <script src="https://cdn.jsdelivr.net/npm/uikit@3.5.6/dist/js/uikit.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/uikit@3.5.6/dist/js/uikit-icons.min.js"></script>
+
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+  <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+  <script src="https://unpkg.com/ag-grid-community/dist/ag-grid-community.min.noStyle.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/dist/styles/ag-grid.css">
+  <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/dist/styles/ag-theme-balham.css">
+  <title>Dataportal</title>
+  <link rel="icon" href="https://dataportal-data.s3-ap-southeast-2.amazonaws.com/static/images/favicon-32x32.png">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+  
+<style>
+
+.tag-input span.v-chip {
+  color: #A81C84;
+}
+
+.gridPurple {
+    background-color:#A81C84;
+    color: white;
+}
+.grey {
+    background-color:#e6e6e6;
+    color: white;
+}
+
+.full-screen-modal-dialog {
+    max-width: 100%;
+    margin: 0;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100vh;
+    display: flex;
+}
+
+.modal-dialog {
+  max-width: 80% !important;
+}
+
+
+</style>
+
+</head>
+
+<body>
+  <div id="app">
+    <v-app>
+
+      <template>
+
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+          <a href="{{ url_for('home.home') }}">
+            <img
+              src="https://dataportal-data.s3-ap-southeast-2.amazonaws.com/static/images/test_logo.PNG"
+              alt="sm4_logo"
+              width="120"
+            >
+          </a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+
+          <p style="color: #A81C84;">{{ user }}</p>
+        
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+            </ul>
+            <form class="form-inline my-2 my-lg-0"
+                enctype="multipart/form-data"
+                action="{{ url_for('api_login.api_logout') }}"
+                id="loginForm" 
+                method="POST"
+            >
+                <v-btn tile color="#A81C84" class="white--text"><input method="POST" id="submit3" type="submit" value="logout"></v-btn>
+            </v-form>
+
+          </div>
+        </nav>
+
+        <v-progress-linear v-show="isLoading" indeterminate color="#35B4CF"></v-progress-linear>
+
+        {% block content %} 
+        
+        {% endblock %}
+
+        <!-- <v-footer
+          color="#A81C84"
+          app
+        >
+          <span class="white--text">Stemformatics | Dataportal | 2020</span>
+        </v-footer> -->
+
+    </template>
+
+    
+
+  </v-app>
+  </div>
+
+  <!-- <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script> -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+  <script>
+    
+    var gridOptions = { // Define globally or the grid wont work. 
+      defaultColDef: {
+          sortable: true,
+          resizable: true,
+          filter: true,
+          rowStyle: {background: '#ffffff'},
+      },
+      columnDefs: this.columnDefs,
+      rowData: null, // [], //this.rowData,
+      refreshedRowData: [],
+      rowStyle: {background: '#ffffff'},
+      
+      onGridReady(params) {
+          this.gridApi = params.api;
+        },
+      onCellClicked: function(params){
+
+        vm.values.push(params.value)
+  
+        vm.firstColumnSelected.push(params.colDef.field);
+        vm.columnBeingEdited = params.colDef.field;
+
+        if(vm.columnBeingEdited !== vm.firstColumnSelected[0]){ // If the most recent column clicked is not the column you have been editing, the selection will reset. 
+                  return vm.clearGrid(); //console.log("clear the grid");//this.clearSampleUpdate();
+                }
+                if(vm.columnBeingEdited == "sample_id"){  // If you try to select the sample ID column for editing, the column will reset. 
+                   return vm.clearGrid(); //console.log("clear the grid");//this.clearSampleUpdate();
+                }
+                else{
+                    params.colDef.clicked = true;   // Add a column.clicked field to the object, for later verification when changing cell color. 
+                    var samplesArray = [];  // Store all selected samples here. 
+                    vm.samples = samplesArray;
+                    var i;  
+                    var selected = params.api.getSelectedRows();  // Get selected rows returns a list of objects per row. 
+                    // console.log(params.data.sample_id)
+                    var valuesSelected = [];    // Initialise an empty list to store the values of the rows we are clicking on. 
+                    valuesSelected.push(params.value)   // Push the params.value to the list we just initialised. 
+                    params.valuesSelected = valuesSelected; // Store the values in the object, for access after the onClick event has finished. 
+                    
+                    for(i=0;i<selected.length;i++){
+                        samplesArray.push(selected[i].sample_id) // Push all the samplIds selected to the samplesArray array. These will populate/de-populate depending on "selected", the items selected at any one time in the grid. 
+                    }
+                    var id = params.colDef.id;  // For testing only, not necessary for production. 
+                    // var columnName = params.colDef.field;   // For testing only, not necessary for production. 
+                    vm.selectedValues.push(params.value)
+                    vm.sampleSelectedCount = samplesArray.length;
+
+                    vm.cellRowUpdateValues = {
+                        id: id,
+                        column: vm.firstColumnSelected[0],
+                        row: samplesArray,
+                        count: samplesArray.length,  // A count of values selected. 
+                    }
+
+                    // if(vm.cellRowUpdateValues.row.includes(params.data.sample_id)){
+                    params.colDef.cellClass = function(params) { return (
+                      params.value===params.value &&
+                      params.colDef.clicked == true &&
+                      samplesArray.includes(params.data.sample_id)
+                      
+                      ?'gridPurple':'grey'
+                    ); }
+
+                    // }
+                    // if(vm.columnBeingEdited != vm.firstColumnSelected){
+                    //   return this.
+                    // }
+                    
+                    this.gridApi.redrawRows();
+        }
+      },
+      groupMultiAutoColumn: true,
+      rowMultiSelectWithClick: true,
+      rowSelection: 'multiple',
+      enableRangeSelection: true,
+      suppressMovableColumns: false,
+      
+    };
+
+    var vm = new Vue({
+      el: '#app',
+      vuetify: new Vuetify(),
+      delimiters: ['[[',']]'],  // Change to '[[]]' otherwise the standard moustache interpolation will interfere with flasks jinja templates. 
+      data:{
+        datasetSearchShowBlood: false,
+        datasetSearchShowiMAC: false,
+
+        samplesTableLoading: false,
+        samplesGridClickedObject: null,
+        samplesGridDialog: false,
+        samplesSearch: '',
+        
+        atlas: ['imac', 'blood'], 
+        atlasModel: 'imac',
+        tierItems: ['tier1', 'tier2', 'tier3'],
+        tierModel: 'tier1',
+        comboBoxItems: [
+          'rna seq',
+          'microarray',
+          'project',
+          'single cell'
+        ],
+        helpDialog: false,
+        debug: [],
+        rules: [
+          value => !!value || 'Required.',  // Rules for text field input when updating a samples value. Can be customized.
+        ],
+        samplesSearchTableColumns: [
+          { text: 'dataset_id', value: 'dataset_id' },
+          { text: 'sample_id', value: 'sample_id' },
+          { text: 'blood_tier1', value: 'blood_tier1' },
+          { text: 'blood_tier2', value: 'blood_tier2' },
+          { text: 'blood_tier3', value: 'blood_tier3' },
+          { text: 'imac_tier1', value: 'imac_tier1' },
+          { text: 'imac_tier2', value: 'imac_tier2' },
+          { text: 'imac_tier3', value: 'imac_tier3' },
+          { text: 'annotator', value: 'annotator' },
+          { text: 'evidence', value: 'evidence' },
+          { text: 'phenotype', value: 'phenotype' },
+          { text: 'activation_status', value: 'activation_status' },
+          { text: 'display_metadata', value: 'display_metadata' },
+          // { text: 'include_blood', value: 'include_blood' },
+          // { text: 'include_iMAC', value: 'include_iMAC' },
+          
+        ],
+        samplesSearchTableRows: [],
+        commitPanel: [0, 1],  // Variables related to the selected samples expansion panel, in the commit dialogue modal. 
+        commitDisabled: false,
+        commitReadonly: false,
+        commitValue: null,
+        selected_pubmed: null,
+        commitModalDialog: false,
+        innerModalDialog: false,
+        values: [],
+        samples: null,
+        selectedValues: [],
+        sampleSelectedCount: [],
+        cellRowUpdateValues: [],
+        dataset_being_edited: null,
+        columnDefs: [], //this.columnSetter,
+        rowData: [],  
+        firstColumnSelection: [],
+        firstColumnSelected: [],
+        columnBeingEdited: null,
+        selected: [],
+        selectedCell: [],
+        selectedRows: null,
+        updateRows: [],
+        updateValues: [],
+        dialog: false,
+        isLoading: true,
+        sample_data: null,
+        selected_dataset: null,
+        selected_dataset_title: null,
+        selected_dataset_metadata: [],
+        comboBoxSearch: null,
+        search: '',
+        data: [],
+        unfilteredData: [],
+        originalTableData: [],
+        headers: [
+          { text: 'Id', value: 'Dataset_id', filterable: true},
+          { text: 'Date', value: 'Release_date', filterable: true},
+          { text: 'Title', value: 'Title', filterable: true},
+          { text: 'Authors', value: 'Authors', filterable: true},
+          { text: 'Description', value: 'Description', filterable: true},
+          { text: 'Pubmed', value: 'Pubmed', filterable: true},
+          // { text: 'Cell', value: 'generic_sample_type', filterable: true},
+        ],
+      },
+      methods: {
+        selectDataset: function(params){
+          this.selectedDatasetRow = params
+          this.selectDialog = true
+        },
+        inDev: function(){
+          alert("In development.")
+        },
+        comboBoxFilter: function(){
+
+          // this.search = this.comboBoxSearch.join(', ');
+
+          var data = this.data;
+          var selectedItems = this.comboBoxSearch;
+          var i, j;
+          var valueArray = [];
+
+
+          if(selectedItems.length < 1 || selectedItems == undefined || selectedItems == null){
+            // return console.log("Empty search")
+            this.data = this.originalTableData;
+          }
+          else {
+            this.data = [];
+
+            for(i=0; i<selectedItems.length; i++){
+
+              // console.log(selectedItems[i])
+
+              const deepFindAll = function* (f, o = {})
+              { if (Object (o) === o)
+                { if (f (o) === true)
+                    yield o
+                  for (const [ _, v ] of Object.entries (o))
+                    yield* deepFindAll (f, v)
+                }
+              }
+
+              const searchAll = (query = "", data = {}) =>
+              Array.from
+                ( deepFindAll
+                    ( o =>
+                        Object.values (o) .some (v =>
+                          // String (v) === v && v .includes (query))
+                          String (v) === v
+                            && v .toLowerCase () .includes (query .toLowerCase ()))
+                    , data
+                    )
+                )
+
+              var result = searchAll(selectedItems[i], data);
+              valueArray.push(result);
+            }
+            
+            var last_element = valueArray[valueArray.length - 1]; // Gets the most recent search, or last array item. 
+
+            for(j=0; j<last_element.length; j++){
+              this.data.push(last_element[j])
+            }
+          }
+
+        },
+        downloadCSV: function(params){
+          
+          var dataset_title = this.selected_dataset_title;
+          var dataset_id = this.selected_dataset.toString();
+
+          var params = {
+            skipHeader: false,
+            skipFooters: true,
+            allColumns: true,
+            onlySelected: false,
+            suppressQuotes: true,
+            fileName: dataset_title + " " + dataset_id,
+            columnSeparator: ','
+          };
+
+          gridOptions.api.exportDataAsCsv(params);        
+        },
+        updateAtlas: function(){
+
+          var dataset_id = this.dataset_being_edited;
+          var column = this.cellRowUpdateValues.column;
+          var rowIds = this.cellRowUpdateValues.row;
+          var value = this.commitValue;
+
+          obj = {
+            dataset_id: dataset_id,
+            column: column,
+            rowIds: rowIds,
+            value: value
+          }
+
+          axios.post("/api/atlas_update",  // Sets the ag-grid data, returned from API. Sends parameter of DatasetId, taken from session.  
+          {
+          data: obj,
+          })
+          .catch(function (error) {
+            // handle error
+            console.log(error);
+          })
+          .then(result => console.log(result))   // All data returned from a search. 
+          .then(function(){
+            vm.commitValue = ' ';
+            vm.clearGrid();
+            $('#exampleModal').modal({refresh: true})
+          });
+
+        },
+        datasetMetadata: function(){
+          // Filters the selected dataset id from the array of datasets in 'this.data' and returns the entire object for that dataset id.
+          var match = parseInt(this.selected_dataset, 10);  // Convert the DS id back to an int (second argument - 10, means base 10 int).
+          var selected_dataset = parseInt(this.selected_dataset, 10); // Convert the DS id back to an int (second argument - 10, means base 10 int).
+          var data = this.unfilteredData;
+          var result = data.find(x => x.Dataset_id === match);
+          this.selected_pubmed = result.Pubmed;
+
+          return this.selected_dataset_metadata = result;
+
+        },
+        updateColumns: function(){
+        
+          // gridOptions.columnDefs = vm.columnDefs;
+          gridOptions.api.refreshView();
+          gridOptions.api.destroy();
+          gridOptions.columnDefs = vm.columnDefs;
+          gridOptions.columnDefs[0].suppressMovable = true;
+          gridOptions.columnDefs[0].pinned = "left"; // Pins the first column. 
+          gridOptions.columnDefs[0].editable = false,
+          gridOptions.columnDefs[0].cellStyle = {color: 'white', 'background-color': 'orange'};
+
+          //$('#exampleModal').modal({backdrop: 'static', keyboard: false})
+          $('#exampleModal').modal({refresh: true})
+          
+
+          var gridDiv = document.querySelector('#myGrid');
+          new agGrid.Grid(gridDiv, gridOptions);
+
+          this.columnDefs = gridOptions.columnDefs;
+        },
+        clearGrid: function(){
+          
+          vm.values = [];
+          vm.selectedCell = [];
+          vm.selectedRows = [];
+          vm.selectedValues = [];
+          vm.columnDefs = [];
+          vm.firstColumnSelected = [];
+          vm.firstColumnSelection = [];
+          vm.updateRows = [];
+          vm.cellRowUpdateValues = [];
+          vm.selected_pubmed = null;
+          vm.selected_dataset_metadata = [];
+          vm.selected_dataset = null;
+        
+          //$('#exampleModal').modal('hide')
+          gridOptions.api.destroy();
+
+          dataset_id = this.dataset_being_edited //params.Dataset_id;
+          this.selected_dataset = dataset_id;
+
+          const atlas_model = this.atlasModel
+          const tierModel = this.tierModel
+            
+          axios.post("/atlas_samples_grid", {"dataset_id": dataset_id, "atlas_type": {"atlas_model": atlas_model, "tierModel": tierModel}})
+          .then(result => {
+
+            var sampleIds = vm.cellRowUpdateValues.row;
+            var columns = result.data.columns;
+
+            gridOptions.columnDefs = result.data.columns.map(result => {
+              
+              var j;
+              for(j=0; j<result.length; j++){
+                
+                obj = {
+                  sortable: true,
+                  editable: true,
+                  filter: "agTextColumnFilter",
+                  field: result,
+                  // cellClass: function(params) { return (params.value==='Fertilised egg rep_3'?'rag-red':'rag-green'); }
+                  // cellClass: function(params) { return (params.value==='Fertilised egg rep_3'?'rag-red':'rag-green'); }
+                }                
+              
+              return obj
+              }
+            });
+
+            gridOptions.rowData = result.data.data.map(result => { // You can set the vue instance to: "var vm = new Vue({})" and then you can reference root objects from call backs. 
+              var i;
+              for(i=0; i<result.length; i++){
+                var obj = {};
+                columns.forEach((key, i) => obj[key] = result[i]);  // Using forEach on the array to create an object with the array values as the keys and the result of the for loop values as the obj values. 
+                return obj
+              }
+
+            });
+
+            
+
+            gridOptions.columnDefs[0].suppressMovable = true;
+            gridOptions.columnDefs[0].pinned = "left"; // Pins the first column. 
+            gridOptions.columnDefs[0].editable = false,
+            gridOptions.columnDefs[0].cellStyle = {color: '#A81C84', 'background-color': 'white'};
+
+            //$('#exampleModal').modal({backdrop: 'static', keyboard: false})
+            $('#exampleModal').modal({refresh: true})
+            
+
+            var gridDiv = document.querySelector('#myGrid');
+            new agGrid.Grid(gridDiv, gridOptions);
+
+            this.columnDefs = gridOptions.columnDefs;
+
+
+          })
+
+        },
+        destroyGrid: function(){
+          // alert("destroy grid")
+          vm.values = [];
+          vm.samples = [];
+          vm.selectedCell = [];
+          vm.selectedRows = [];
+          vm.selectedValues = [];
+          vm.columnDefs = [];
+          vm.firstColumnSelected = [];
+          vm.firstColumnSelection = [];
+          vm.updateRows = [];
+          vm.cellRowUpdateValues = [];
+          gridOptions.api.destroy();
+          
+          
+          
+        },
+        updateGrid: function(){
+
+          vm.values = [];
+          vm.samples = [];
+          vm.selectedCell = [];
+          vm.selectedRows = [];
+          vm.selectedValues = [];
+          vm.columnDefs = [];
+          vm.firstColumnSelected = [];
+          vm.firstColumnSelection = [];
+          vm.updateRows = [];
+          vm.cellRowUpdateValues = [];
+          gridOptions.api.destroy();
+
+          dataset_id = this.selected_dataset;
+
+          const atlas_model = this.atlasModel
+          const tierModel = this.tierModel
+            
+          axios.post("/atlas_samples_grid", {"dataset_id": dataset_id, "atlas_type": {"atlas_model": atlas_model, "tierModel": tierModel}})
+          .then(result => {
+
+            var sampleIds = vm.cellRowUpdateValues.row;
+            var columns = result.data.columns;
+
+            gridOptions.columnDefs = result.data.columns.map(result => {
+              
+              var j;
+              for(j=0; j<result.length; j++){
+                
+                obj = {
+                  sortable: true,
+                  editable: true,
+                  filter: "agTextColumnFilter",
+                  field: result,
+                  hide: false,
+                  // cellClass: function(params) { return (params.value==='Fertilised egg rep_3'?'rag-red':'rag-green'); }
+                  // cellClass: function(params) { return (params.value==='Fertilised egg rep_3'?'rag-red':'rag-green'); }
+                }                
+              
+              return obj
+              }
+            });
+
+            gridOptions.columnDefs.splice(-2, 2)  // The last two columns in the array are include_blood, include_iMAC - this will hide them from the grid. 
+
+            // console.log("current columns:")
+            // console.log(gridOptions.columnDefs.splice(-2, 2))
+
+            gridOptions.rowData = result.data.data.map(result => { // You can set the vue instance to: "var vm = new Vue({})" and then you can reference root objects from call backs. 
+              var i;
+              for(i=0; i<result.length; i++){
+                var obj = {};
+                columns.forEach((key, i) => obj[key] = result[i]);  // Using forEach on the array to create an object with the array values as the keys and the result of the for loop values as the obj values. 
+                return obj
+              }
+
+            });
+
+            console.log(gridOptions.rowData)
+
+            gridOptions.columnDefs[0].suppressMovable = true;
+            gridOptions.columnDefs[0].pinned = "left"; // Pins the first column. 
+            gridOptions.columnDefs[0].editable = false,
+            gridOptions.columnDefs[0].cellStyle = {color: '#A81C84', 'background-color': 'white'};
+
+            $('#exampleModal').modal({backdrop: 'static', keyboard: false})
+
+            var gridDiv = document.querySelector('#myGrid');
+            new agGrid.Grid(gridDiv, gridOptions);
+
+            // this.columnDefs = gridOptions.columnDefs;
+
+          })
+
+        },
+        handleSamplesClick: function(params){
+          this.samplesGridClickedObject = params
+          console.log(params)
+          this.samplesGridDialog = true;
+
+        },
+        handleClick: function(params){
+
+          this.dataset_being_edited = params.Dataset_id;
+
+          dataset_id = params.Dataset_id;
+          this.selected_dataset = dataset_id;
+          this.selected_dataset_title = params.Title;
+
+          const atlas_model = this.atlasModel
+          const tierModel = this.tierModel
+            
+          axios.post("/atlas_samples_grid", {"dataset_id": dataset_id, "atlas_type": {"atlas_model": atlas_model, "tierModel": tierModel}})
+          .then(result => {
+
+            var sampleIds = vm.cellRowUpdateValues.row;
+            var columns = result.data.columns;
+
+            gridOptions.columnDefs = result.data.columns.map(result => {
+              
+              var j;
+              for(j=0; j<result.length; j++){
+                
+                obj = {
+                  sortable: true,
+                  editable: true,
+                  filter: "agTextColumnFilter",
+                  field: result,
+                  hide: false,
+                  // cellClass: function(params) { return (params.value==='Fertilised egg rep_3'?'rag-red':'rag-green'); }
+                  // cellClass: function(params) { return (params.value==='Fertilised egg rep_3'?'rag-red':'rag-green'); }
+                }                
+              
+              return obj
+              }
+            });
+
+            gridOptions.columnDefs.splice(-2, 2)  // The last two columns in the array are include_blood, include_iMAC - this will hide them from the grid. 
+
+            gridOptions.rowData = result.data.data.map(result => { // You can set the vue instance to: "var vm = new Vue({})" and then you can reference root objects from call backs. 
+              var i;
+              for(i=0; i<result.length; i++){
+                var obj = {};
+                columns.forEach((key, i) => obj[key] = result[i]);  // Using forEach on the array to create an object with the array values as the keys and the result of the for loop values as the obj values. 
+                return obj
+              }
+
+            });
+
+            gridOptions.columnDefs[0].suppressMovable = true;
+            gridOptions.columnDefs[0].pinned = "left"; // Pins the first column. 
+            gridOptions.columnDefs[0].editable = false,
+            gridOptions.columnDefs[0].cellStyle = {color: '#A81C84', 'background-color': 'white'};
+
+            $('#exampleModal').modal({backdrop: 'static', keyboard: false})
+
+            var gridDiv = document.querySelector('#myGrid');
+            new agGrid.Grid(gridDiv, gridOptions);
+
+            // this.columnDefs = gridOptions.columnDefs;
+
+          })
+
+        }
+      },
+      computed: {
+        filtered: function(){
+
+          var i;
+      
+          for(i=0; i<this.data.length; i++){
+
+            var dataset_id = this.data[i].Dataset_id.toString(); // Its necessary to convert the dataset_id field to string to prevent search loss with the filtering chips.
+            this.data[i].Dataset_id = dataset_id;
+           
+            var descriptionFiltered = this.data[i].Description.substring(0,50) + '...';
+            this.data[i].Description = descriptionFiltered;
+
+            var titleFiltered = this.data[i].Title.substring(0,50) + '...';
+            this.data[i].Title = titleFiltered;
+
+            var authorsFiltered = this.data[i].Authors.substring(0,50) + '...';
+            this.data[i].Authors = authorsFiltered;
+
+          }
+
+          return this.data;
+          
+        },  
+      },
+      watch: {
+        data(){
+          this.isLoading = false 
+        },   
+        datasetSearchShowBlood: function(){
+          axios.post("/atlas_summary_table_mongo", {"data": {"blood": this.datasetSearchShowBlood, "iMAC": this.datasetSearchShowiMAC} })
+          .then(result => this.data = result.data.map(function(item){   // => console.log(result.data))
+
+            var i, j;
+
+            var dataset_id = item.data.dataset_id
+            var datasets = item.data.datasets
+            var dataset_metadata = item.data.dataset_metadata
+
+            return {
+              "Dataset_id": dataset_id,
+              "Authors": dataset_metadata[0].authors.replace(/[^a-zA-Z0-9]+/g, " "),
+              "Title": dataset_metadata[0].title.replace(/[^a-zA-Z0-9]+/g, " "),
+              "Description": dataset_metadata[0].description.replace(/[^a-zA-Z0-9]+/g, " "),
+              "Date": dataset_metadata[0].release_date.replace(/[^a-zA-Z0-9]+/g, " "),
+              "Platform": dataset_metadata[0].platform.replace(/[^a-zA-Z0-9]+/g, " "),
+              "Pubmed": dataset_metadata[0].pubmed.replace(/[^a-zA-Z0-9]+/g, " "),
+            }
+
+          }));
+
+        },
+        datasetSearchShowiMAC: function(){
+          axios.post("/atlas_summary_table_mongo", {"data": {"blood": this.datasetSearchShowBlood, "iMAC": this.datasetSearchShowiMAC} })
+          .then(result => this.data = result.data.map(function(item){   // => console.log(result.data))
+
+            var i, j;
+
+            var dataset_id = item.data.dataset_id
+            var datasets = item.data.datasets
+            var dataset_metadata = item.data.dataset_metadata
+
+            return {
+              "Dataset_id": dataset_id,
+              "Authors": dataset_metadata[0].authors.replace(/[^a-zA-Z0-9]+/g, " "),
+              "Title": dataset_metadata[0].title.replace(/[^a-zA-Z0-9]+/g, " "),
+              "Description": dataset_metadata[0].description.replace(/[^a-zA-Z0-9]+/g, " "),
+              "Date": dataset_metadata[0].release_date.replace(/[^a-zA-Z0-9]+/g, " "),
+              "Platform": dataset_metadata[0].platform.replace(/[^a-zA-Z0-9]+/g, " "),
+              "Pubmed": dataset_metadata[0].pubmed.replace(/[^a-zA-Z0-9]+/g, " "),
+            }
+
+          }));
+
+        }  
+      },
+      mounted: function(){
+
+        axios.post("/atlas_summary_table_mongo", {"data": {"blood": this.datasetSearchShowBlood, "iMAC": this.datasetSearchShowiMAC} })
+        .then(result => this.data = result.data.map(function(item){   // => console.log(result.data))
+
+          var i, j;
+
+          var dataset_id = item.data.dataset_id
+          var datasets = item.data.datasets
+          var dataset_metadata = item.data.dataset_metadata
+
+          return {
+            "Dataset_id": dataset_id,
+            "Authors": dataset_metadata[0].authors.replace(/[^a-zA-Z0-9]+/g, " "),
+            "Title": dataset_metadata[0].title.replace(/[^a-zA-Z0-9]+/g, " "),
+            "Description": dataset_metadata[0].description.replace(/[^a-zA-Z0-9]+/g, " "),
+            "Date": dataset_metadata[0].release_date.replace(/[^a-zA-Z0-9]+/g, " "),
+            "Platform": dataset_metadata[0].platform.replace(/[^a-zA-Z0-9]+/g, " "),
+            "Pubmed": dataset_metadata[0].pubmed.replace(/[^a-zA-Z0-9]+/g, " "),
+          }
+
+        }));
+
+        axios.post("/atlas_samples_summary_table_mongo")
+        // .then(result => console.log(result.data.data))
+        .then(result => this.samplesSearchTableRows = result.data.data.map(function(item){
+
+          return {
+            
+            "dataset_id": item[0],
+            "sample_id": item[1], 
+            "annotator": item[2], 
+            "evidence": item[3],  
+            'blood_tier1': item[4],  
+            'blood_tier2': item[5],  
+            'blood_tier3': item[6],  
+            'imac_tier1': item[7],  
+            'imac_tier2': item[8],  
+            'imac_tier3': item[9],  
+            "phenotype": item[10], 
+            "activation_status": item[11], 
+            "display_metadata": item[12],
+            // "include_blood": item[13],
+            // "include_imac": item[14]
+
+          }
+
+        }));
+
+
+
+      }
+      
+    })
+  </script>
+
+</body>
+</html>
+

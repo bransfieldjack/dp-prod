@@ -1,0 +1,44 @@
+{% extends 'governance-base.html' %} {% block content %}
+
+<template>
+
+    <v-container>
+
+        <v-row>
+            <!-- [[columnData]] -->
+            <v-col cols="12" md="12">
+                
+                <template>
+                    <v-data-table
+                    :headers="columnData"
+                    :items="rowData"
+                    item-key="name"
+                    show-expand
+                    class="elevation-1"
+                    >
+                    <template v-slot:top>
+                        <v-toolbar flat>
+                        <v-toolbar-title color="#35B4CF">Governance</v-toolbar-title>
+                        <v-spacer></v-spacer>
+                       
+                        </v-toolbar>
+                    </template>
+                    <template v-slot:expanded-item="{ headers, item }">
+                        <td :colspan="headers.length"> [[item.notes]] </td>
+                    </template>
+                    </v-data-table>
+                    <br>
+                    <br>
+                    <br>
+                    <br>
+                    <br>
+                    <br>
+                </template>
+            </v-col>
+        </v-row>
+
+    </v-container>
+
+</template>
+
+{% endblock %}

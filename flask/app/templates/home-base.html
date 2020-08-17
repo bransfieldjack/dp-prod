@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+  <!-- UIkit CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.5.6/dist/css/uikit.min.css" />
+
+  <!-- UIkit JS -->
+  <script src="https://cdn.jsdelivr.net/npm/uikit@3.5.6/dist/js/uikit.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/uikit@3.5.6/dist/js/uikit-icons.min.js"></script>
+  
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+  <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+  <script src="https://unpkg.com/ag-grid-community/dist/ag-grid-community.min.noStyle.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/dist/styles/ag-grid.css">
+  <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/dist/styles/ag-theme-balham.css">
+  <title>Dataportal</title>
+  <link rel="icon" href="https://dataportal-data.s3-ap-southeast-2.amazonaws.com/static/images/favicon-32x32.png">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  <a href="https://icons8.com/icon/41615/search"></a>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.1.0/papaparse.min.js"></script>
+  <script src="https://unpkg.com/ag-grid-community/dist/ag-grid-community.min.noStyle.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/dist/styles/ag-grid.css">
+  <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/dist/styles/ag-theme-balham.css">
+  
+<style>
+
+.tag-input span.v-chip {
+  color: #6A76AB;
+}
+
+.gridPurple {
+    background-color:#6A76AB;
+    color: white;
+}
+
+.grey {
+    background-color:#e6e6e6;
+    color: white;
+}
+
+.full-screen-modal-dialog {
+    max-width: 100%;
+    margin: 0;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100vh;
+    display: flex;
+}
+
+.modal-dialog {
+  max-width: 80% !important;
+}
+
+.btn {
+    background-color: white !important;
+    color: #6A76AB;
+    outline-color:#6A76AB;
+}
+
+.navbar {
+    background-color: white !important;
+}
+
+</style>
+
+</head>
+
+<body>
+  <div id="app">
+    <v-app>
+
+      <template>
+
+        
+        
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a href="{{ url_for('home.home') }}">
+                <img
+                    src="https://dataportal-data.s3-ap-southeast-2.amazonaws.com/static/images/test_logo.PNG"
+                    alt="sm4_logo"
+                    width="120"
+                >
+            </a>
+
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+
+          <p style="color: #A81C84;">{{ user }} ({{ role }})</p>
+          
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
+            <ul class="navbar-nav mr-auto">
+            </ul>
+            
+            <form class="form-inline my-2 my-lg-0"
+                enctype="multipart/form-data"
+                action="{{ url_for('admin.admin') }}"
+                id="loginForm" 
+                method="POST"
+            > 
+                {% if admin %}
+                <v-btn tile color="#A81C84" class="white--text"><input method="POST" id="submit3" type="submit" value="ADMIN"></v-btn>
+                {% endif %}
+            </v-form>
+       
+            <ul class="navbar-nav mr-auto">
+            </ul>
+  
+            <form class="form-inline my-2 my-lg-0"
+                enctype="multipart/form-data"
+                action="{{ url_for('api_login.api_logout') }}"
+                id="loginForm" 
+                method="POST"
+            >
+                <v-btn tile color="#A81C84" class="white--text"><input method="POST" id="submit3" type="submit" value="LOGOUT"></v-btn>
+            </v-form>
+
+          </div>
+        </nav>
+
+
+        {% block content %} 
+        
+        {% endblock %}
+
+    
+        <v-footer
+          color="#A81C84"
+          absolute
+          app
+        >
+          <span class="white--text">Stemformatics | Dataportal | 2020</span>
+        </v-footer>
+
+    </template>
+
+  </v-app>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+  <script>
+
+    
+    var user = "{{ user }}";
+    var role = "{{ role }}";
+   
+    var vm = new Vue({
+      el: '#app',
+      vuetify: new Vuetify(),
+      delimiters: ['[[',']]'],  // Change to '[[ ]]' otherwise the standard vue.js template '{}' parenthesis will interfere with flasks jinja templates. 
+      data:{
+        drawer: null,
+        sheet: false,
+        changeBackgroundColor: false,
+        vueAlertDataFormatResponse: false,
+        dataFormatResponse: '',
+        columnDefs: [
+          { headerName: "SampleID", "text": "SampleID", "sortable": true, "value": "SampleID", field: "SampleID" },
+          { headerName: "SampleType", "text": "SampleType", "sortable": true, "value": "SampleType", field: "SampleType" }, 
+          { headerName: "ReadFile1", "text": "ReadFile1", "sortable": true, "value": "ReadFile1", field: "ReadFile1" } 
+
+        ], 
+        rowData: [
+            {ReadFile1: "SRR8180286.fastq", SampleID: "GSM3465677", SampleType: "Differentiated in vitro 7028 iPS line" }, 
+            {ReadFile1: "SRR8180292.fastq", SampleID: "GSM3465683", SampleType: "Differentiated in vitro ADRC5 iPS line" }, 
+            {ReadFile1: "SRR8180293.fastq", SampleID: "GSM3465684", SampleType: "Differentiated in vitro ADRC5 iPS line" },
+        ],
+        dataTable: [],
+        gridSet: false,
+        headers: [],
+        samples: [],
+        returnedSampleData: [],
+        private: false,
+        selectedFile: null,
+        items: ['Annotator', 'Administrator'],
+        projects: ['iMAC', 'Blood', 'Leukomics'],
+        // user: '{{ user }}',
+        // role: '{{ role }}',
+        admin: '{{ admin }}',
+        annotator: {
+          name: user,
+          role: role,
+          notes: 'Dataset upload',
+          date: new Date().toJSON().substr(0, 10),
+        },
+        vueAlertAnnotatorNotValidated: false,
+        vueAlertDatasetNotValidated: false,
+        annotatorValidated: false,
+        datasetValidated: false,
+        showDataTable: false,
+        dataset: {
+          dataset_id: null,
+          title: '',
+          authors: '',
+          platform: '',
+          pubmed: '',
+          project: '',
+          description: '',
+        },
+        nameRules: [
+          v => !!v || 'Name is required',
+          v => (v && v.length >= 0) || 'Name cannot be blank!',
+        ],
+        roleRules: [
+          v => !!v || 'Please select a user role!',
+        ],
+        notesRules: [
+          v => !!v || 'Please enter some notes (Min. 20 characters)',
+          v => (v && v.length >= 20),
+        ],
+        annotatorCheck: false,
+
+      },
+      methods: {
+        resetAll: function(){
+          var r=confirm("Reset all form data?");
+          if (r==true)
+            {
+              this.annotator = {
+                name: '',
+                role: '',
+                notes: '',
+                date: new Date().toJSON().substr(0, 10),
+              }
+
+              this.dataset = {
+                dataset_id: null,
+                title: '',
+                authors: '',
+                platform: '',
+                pubmed: '',
+                description: '',
+              }
+
+              this.annotatorValidated = false;
+              this.datasetValidated = false;
+              this.gridSet = false;
+              this.headers = [];
+              this.samples = [];
+              this.selectedFile = null;
+
+            }
+          else
+            {
+            return;
+            }
+        },
+        comingSoon: function(){
+            alert("Coming Soon")
+        },
+        validate: function(){
+          console.log(this.annotator)
+          if (this.annotator.name != '' && this.annotator.role != '' && this.annotator.notes != '' && this.annotator.date != ''){
+            this.annotatorValidated = true;
+            this.vueAlertAnnotatorNotValidated = false;
+            console.log("validated")
+          }
+          else {
+            this.annotatorValidated = false
+            this.vueAlertAnnotatorNotValidated = true;
+            console.log("not validated")
+            // alert("Not validated")
+          }
+        },
+        validateAll: function(){
+
+          console.log(this.annotator)
+          console.log(this.dataset)
+          console.log(this.selectedFile)
+
+          if (this.dataset.dataset_id != null && this.dataset.title != '' && this.dataset.authors != '' && this.dataset.platform != '' && this.dataset.pubmed != '' && this.dataset.description != '' && this.selectedFile != null){
+            this.datasetValidated = true
+            this.vueAlertDatasetNotValidated = false
+            console.log("validated")
+          }
+          else {
+            this.datasetValidated = false
+            this.vueAlertDatasetNotValidated = true
+            console.log("not validated")
+            // alert("Not validated")
+          }
+
+        },
+        fileUpload: function(){
+
+          var formData = new FormData();
+          var file= document.querySelector('#file');
+          formData.append("file", file.files[0]);
+
+          axios.post("/api/add_dataset_samples", formData, {
+          headers: {
+              'Content-Type': 'multipart/form-data'
+              }
+          }).then(response => this.samples = Object.values(response.data.data))
+          
+          axios.post("/api/add_dataset_samples", formData, {
+          headers: {
+              'Content-Type': 'multipart/form-data'
+              }
+          }).then(response => this.headers = response.data.columns.map(function(item){
+            return {headerName: item, text: item, sortable: true, value: item, field: item}
+          })) 
+
+          axios.post("/api/add_dataset_samples", formData, {
+          headers: {
+              'Content-Type': 'multipart/form-data'
+              }
+          }).then(response => console.log(response.data.status))
+
+          // .then(response => this.dataFormatResponse = response.data)  
+
+          //   this.vueAlertDataFormatResponse = true;
+        
+        },
+        createGrid: function(){
+
+          this.gridSet = true;
+
+          var gridOptions = { // Define globally or the grid wont work. 
+            defaultColDef: {
+                sortable: true,
+                resizable: true,
+                filter: true,
+                editable: false,
+                rowStyle: {background: '#ffffff'},
+            },
+            columnDefs: this.headers,
+            rowData: this.samples,
+            refreshedRowData: [],
+            rowStyle: {background: '#ffffff'},
+            onGridReady(params) {
+              this.gridApi = params.api;
+            },
+            groupMultiAutoColumn: true,
+            rowMultiSelectWithClick: true,
+            rowSelection: 'multiple',
+            enableRangeSelection: true,
+          }
+
+          // gridOptions.columnDefs[0].suppressMovable = true;
+          gridOptions.columnDefs[0].pinned = "left"; // Pins the first column. 
+          gridOptions.columnDefs[0].editable = false,
+          gridOptions.columnDefs[0].cellStyle = {color: '#A81C84', 'background-color': 'white'};
+
+          var gridDiv = document.querySelector('#myGrid');
+          new agGrid.Grid(gridDiv, gridOptions);
+          console.log("firing")
+          this.showDataTable = true;
+          console.log(gridOptions.columnDefs)
+
+        },
+        addDataset: function(){
+
+          data = {
+            "annotator": this.annotator,
+            "dataset": this.dataset,
+            "samples": {
+              "headers": this.headers,
+              "samples": this.samples,
+              "private": this.private
+            }
+          }
+
+          console.log(data)
+
+          axios.post("/api/save_dataset", {"data": data}
+          ).then(response => this.dataFormatResponse = response.data)  
+
+          this.vueAlertDataFormatResponse = true;
+        },
+   
+  
+      },
+      computed: {
+        responseMessage: function(){
+
+          if(this.dataFormatResponse.status == "error"){
+            return this.dataFormatResponse.message;
+          }
+          if(this.dataFormatResponse.status == "success"){
+            return this.dataFormatResponse.message;
+          }
+          
+          
+        },
+        // a computed getter
+        // reversedMessage: function () {
+        //   // `this` points to the vm instance
+        //   return this.message.split('').reverse().join('')
+        // }
+      },
+      mounted(){
+        console.log(this.role);
+      }
+
+
+    })
+  </script>
+
+</body>
+</html>
+

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <div id="app">
+    <v-app>
+      
+        <v-container>
+            <v-row>
+                <!-- <v-col cols="12" md="1"></v-col> -->
+                    <v-col cols="12" md="12">
+                        <br>
+                        <br>
+                            <v-toolbar
+                                color="#A81C84"
+                                dark
+                                flat
+                            >
+                                <v-toolbar-title>JWT Token Generator</v-toolbar-title>
+                                <v-spacer />
+                            </v-toolbar>
+                        <br>
+                        <br>
+                    </v-col>
+                <!-- <v-col cols="12" md="1"></v-col> -->
+            </v-row>
+        </v-container> 
+
+        <v-container>
+            <v-row>
+                <v-col cols="12" md="4"></v-col>
+                    <v-col cols="12" md="4">
+                        <v-form
+                            enctype="multipart/form-data"
+                            action="/api_jwt_token_generated" 
+                            id="loginForm" 
+                            method="POST"
+                            ref="form"
+                        >
+                            <v-text-field
+                                color="orange"
+                                label="Username"
+                                name="username"
+                                type="text"
+                                v-model="login.username"
+                            ></v-text-field>
+                            <v-text-field
+                                color="orange"
+                                id="password"
+                                label="Password"
+                                name="password"
+                                type="password"
+                                v-model="login.password"
+                            ></v-text-field>
+                            <br>
+                            <br>
+                            <v-btn color="#35B4CF" type="submit" tile block>
+                                <input id="submit" type="submit" class="large white--text" value="GENERATE">
+                            </v-btn>
+                            <br>
+                            <br>
+                            [[token]]
+                            <br>
+                            <br>
+                        </v-form>
+                    </v-col>
+                <v-col cols="12" md="4"></v-col>
+            </v-row>
+        </v-container>
+    
+    </v-app>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+  <script>
+    new Vue({
+      el: '#app',
+      vuetify: new Vuetify(),
+      delimiters: ['[[',']]'],
+      data: {
+        login: {
+          username: '',
+          password: '',
+        }
+      },
+    })
+  </script>
+</body>
+</html>

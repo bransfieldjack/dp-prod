@@ -1,0 +1,362 @@
+{% extends 'admin-base.html' %} {% block content %}
+
+<template>
+  <v-tabs 
+    background-color="#35B4CF"
+    class="elevation-2"
+  >
+    <v-tab class="white--text">Users</v-tab>
+    <v-tab class="white--text">Datasets</v-tab>
+
+    <v-tab-item>
+
+      <v-dialog v-model="addUserDialog" max-width="500px">
+        
+        <v-card>
+
+          <v-card-text>
+            <v-container>
+
+              <v-row>
+                <v-col cols="12" md="12">
+                  <table>
+
+                    <tr>
+                      <v-text-field
+                        color="#35B4CF"
+                        label="Email"
+                        v-model="newUser.email"
+                        required
+                      ></v-text-field>
+                    </tr>
+
+                    <tr>
+                      <v-text-field
+                        color="#35B4CF"
+                        label="Password"
+                        :type="'password'"
+                        v-model="newUser.password"
+                        required
+                      ></v-text-field>
+                    </tr>
+
+                    <tr>
+                      <v-select
+                        color="#35B4CF"
+                        :items="roles"
+                        label="Role"
+                        v-model="newUser.role"
+                      ></v-select>
+                    </tr>
+
+                    <v-row>
+                      <v-col cols="12" md="8"></v-col>
+                      
+                      <v-col cols="12" md="2">
+                        <a>Save<v-img  @click="addUser" src="https://img.icons8.com/cotton/64/000000/save.png"/></a>
+                      </v-col>
+                      <v-col cols="12" md="2">
+                        <a>Cancel<img @click="cancelAddUser" src="https://img.icons8.com/flat_round/40/000000/circled-left.png"/></a>
+                      </v-col>
+                    </v-row>
+
+                  </table>
+                </v-col>
+              </v-row>
+          
+                  
+         
+       
+
+            </v-container>
+          </v-card-text>
+
+        </v-card>
+
+      </v-dialog>
+      <br>
+      <br>
+
+      <v-dialog v-model="updateDialog" max-width="500px">
+        
+        <v-card>
+
+          <v-card-text>
+            <v-container>
+
+              <v-row>
+                <v-col cols="12" sm="6" md="6" v-for="(item, key, index) in clicked">
+                  <table>
+                    <tr>
+                      <th>[[key]]</th>
+                    </tr>
+                    <tr>
+                      <td>[[item]]</td>
+                    </tr>
+                  </table>
+                </v-col>
+              </v-row>
+
+              <v-row>
+                <v-col cols="12" sm="12" md="12">
+                  <v-text-field
+                    color="#35B4CF"
+                    :type="'password'"
+                    label="New password"
+                    v-model="update.password"
+                    required
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+
+              <v-row>
+                <v-col cols="12" sm="12" md="12">
+                  <v-text-field
+                    color="#35B4CF"
+                    :type="'password'"
+                    label="Verify new password"
+                    v-model="update.verifyPassword"
+                    required
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+
+              <v-row>
+                <v-col cols="12" sm="12" md="12">
+                  <v-select
+                    color="#35B4CF"
+                    :items="roles"
+                    label="Role"
+                    v-model="update.role"
+                  ></v-select>
+                </v-col>
+              </v-row>              
+
+              <v-row>
+                <v-col cols="12" md="6"></v-col>
+                
+                <v-col cols="12" md="2">
+                  <a>Save<v-img  @click="updateUser" src="https://img.icons8.com/cotton/64/000000/save.png"/></a>
+                </v-col>
+                <v-col cols="12" md="2">
+                  <a>Delete<v-img  @click="deleteUser" src="https://img.icons8.com/cotton/64/000000/delete-sign.png"/></a>
+                </v-col>
+                <v-col cols="12" md="2">
+                  <a>Cancel<img @click="cancel" src="https://img.icons8.com/flat_round/40/000000/circled-left.png"/></a>
+                </v-col>
+              </v-row>
+
+            </v-container>
+          </v-card-text>
+
+        </v-card>
+      </v-dialog>
+      <br>
+      <br>
+      <template>
+        <v-row>
+          <v-col cols="12" md="1"></v-col>
+            <v-col cols="12" md="10">
+              <br>
+                <template>
+                  <a><img @click="addUserDialog = true" src="https://img.icons8.com/color/50/000000/add.png"/></a>
+                </template>
+              <br>
+              <br>
+              <v-data-table
+                @click:row="handleClick"
+                :headers="columnDefs"
+                :items="rowData"
+                sort-by="calories"
+                class="elevation-1"
+              >
+
+                <template v-slot:item.actions="{ item }">
+                  <v-icon
+                    small
+                    class="mr-2"
+                  
+                  >
+                    mdi-pencil
+                  </v-icon>
+                  <v-icon
+                    small
+                   
+                  >
+                    mdi-delete
+                  </v-icon>
+                </template>
+                <!-- <template v-slot:no-data>
+                  <v-btn color="primary" @click="initialize">Reset</v-btn>
+                </template> -->
+
+              </v-data-table> 
+              <br>
+              <br>
+              <br>
+              <br>
+              <br>
+              <br>
+            </v-col>
+          <v-col cols="12" md="1"></v-col>
+        </v-row>
+        
+      </template>
+    </v-tab-item>
+
+    <v-tab-item>
+      
+      <v-dialog v-model="assignedAnnotatorDialog" max-width="500px">
+        <v-card>
+          <v-card-text>
+            <v-container >
+              <!-- [[selectedAnnotatorRow]] -->
+              <v-row>
+                <v-col cols="12" sm="6" md="6" v-for="(item, key, index) in selectedAnnotatorRow">
+
+                  <table>
+                    <tr>
+                      <th>[[key]]</th>
+                    </tr>
+                    <tr>
+                      <td>[[item]]</td>
+                    </tr>
+                  </table>
+     
+                </v-col>
+              </v-row>
+
+            </v-container>
+
+            <v-row >
+              <v-col cols="12" md="2"></v-col>
+              <v-col cols="12" md="8">
+                <v-btn block tile color="error" @click="showRemoveDialog = true">
+                  Remove
+                </v-btn>
+              </v-col>
+              <v-col cols="12" md="2"></v-col>
+            </v-row>
+            <br>
+            <v-row >
+              <v-col cols="12" md="2"></v-col>
+              <v-col cols="12" md="8">
+                <v-btn block tile color="warning" @click="showTransferDialog = true">
+                  Transfer
+                </v-btn>
+              </v-col>
+              <v-col cols="12" md="2"></v-col>
+            </v-row>
+
+            <template v-if="showTransferDialog">
+              <br>
+              <p>Transfer Annotator:</p>
+              <div v-for="(item, key, index) in selectedAnnotatorRow" :key="item">
+                [[key]] : [[item]]
+              </div>
+              <hr>
+              <br>
+              <p>Transfer to:</p>
+              <v-text-field v-model="newAnnotator"></v-text-field>
+              <hr>
+              <v-container>
+                <v-row>
+                  <v-col cols="12" md="6">
+                    <v-btn block tile color="success" @click="transferAnnotator">Confirm</v-btn>
+                  </v-col>
+                  <v-col cols="12" md="6">
+                    <v-btn block tile color="error" @click="showTransferDialog = false">Cancel</v-btn>
+                  </v-col>
+                  [[transferAnnotatorResponse]]
+                </v-row>
+              </v-container>
+            </template>
+
+            <template v-if="showRemoveDialog">
+              <br>
+              <p>Remove Annotator:</p>
+              <div v-for="(item, key, index) in selectedAnnotatorRow" :key="item">
+                [[key]] : [[item]]
+              </div>
+              <v-container>
+                <v-row>
+                  <v-col cols="12" md="6">
+                    <v-btn block tile color="success" @click="removeAnnotator">Confirm</v-btn>
+                  </v-col>
+                  <v-col cols="12" md="6">
+                    <v-btn block tile color="error" @click="assignedAnnotatorDialog = false, unAssignAnnotatorResponse=null">Cancel</v-btn>
+                  </v-col>
+                  [[unAssignAnnotatorResponse]]
+                </v-row>
+              </v-container>
+            </template>
+            
+            
+          </v-card-text>
+        </v-card>
+      </v-dialog>
+
+      <v-row>
+        <v-col cols="12" md="1"></v-col>
+          <v-col cols="12" md="10">
+            <template>
+              <br>
+              <br>
+              <v-data-table
+                @click:row="datasetRowHandleClick"
+                :headers="headers"
+                :items="assignedRows"
+                sort-by="calories"
+                class="elevation-1"
+              >
+                <template v-slot:top>
+                  <v-toolbar flat color="white">
+                    <v-toolbar-title class="annotator">Assigned Annotators</v-toolbar-title>
+                    <v-divider
+                      class="mx-4"
+                      inset
+                      vertical
+                    ></v-divider>
+                    <v-spacer></v-spacer>
+                    <v-dialog v-model="dialog" max-width="500px">
+                      <template v-slot:activator="{ on }">
+                      </template>
+                    </v-dialog>
+                  </v-toolbar>
+                </template>
+                <template v-slot:item.actions="{ item }">
+                  <v-icon
+                    small
+                    class="mr-2"
+                    @click="editItem(item)"
+                  >
+                    mdi-pencil
+                  </v-icon>
+                  <v-icon
+                    small
+                    @click="deleteItem(item)"
+                  >
+                    mdi-delete
+                  </v-icon>
+                </template>
+                <template v-slot:no-data>
+                  <v-btn color="primary" @click="initialize">Reset</v-btn>
+                </template>
+              </v-data-table>
+              <br>
+              <br>
+              <br>
+              <br>
+              <br>
+              <br>
+            </template>
+          </v-col>
+        <v-col cols="12" md="1"></v-col>
+      </v-row>
+
+    </v-tab-item>
+
+  </v-tabs>
+</template>
+
+{% endblock %}

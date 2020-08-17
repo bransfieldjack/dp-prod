@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+  <style>
+    .backgroundImage {
+      background-image: url("https://dataportal-data.s3-ap-southeast-2.amazonaws.com/static/images/Single+cell+-+Powell.png");
+      /* Full height */
+        height: 100%;
+
+      /* Center and scale the image nicely */
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+    }
+    body, html {
+      height: 100%;
+    }
+
+  </style>
+</head>
+<body >
+
+    <v-app id="app" >
+      
+    <v-container fluid class="backgroundImage">
+      <v-row>
+        
+          <v-col cols="12" md="1"></v-col>
+          <v-col cols="12" md="10">
+
+            <v-container>
+              <v-row>
+                <v-col cols="12" md="4"></v-col>
+                <v-col cols="12" md="4">
+                  <v-card style="opacity: 0.85;">
+
+                    <v-card-title class="grey--text justify-center" color="#35B4CF">Stemformatics Dataportal</v-card-title>
+
+                    <v-card-text>
+                      <v-img
+                        src="https://dataportal-data.s3-ap-southeast-2.amazonaws.com/static/images/blank_test_logo.png"
+                      
+                      >
+                    </v-card-text>
+      
+                    <v-card-text>
+                      
+                      <v-form
+                        enctype="multipart/form-data"
+                        action="{{ url_for('api_login.api_login') }}" 
+                        id="loginForm" 
+                        method="POST"
+                        ref="form"
+                      >
+      
+                      <v-text-field
+                        filled
+                        color="#A72F86"
+                        label="Login"
+                        name="login"
+                        type="text"
+                        v-model="login.username"
+                      ></v-text-field>
+      
+                      <v-text-field
+                        filled
+                        color="#A72F86"
+                        id="password"
+                        label="Password"
+                        name="password"
+                        type="password"
+                        v-model="login.password"
+                      ></v-text-field>
+                      
+                      <br>
+                      <br>
+                      
+                      <v-btn color="#35B4CF" type="submit" tile block>
+                        <input id="submit" type="submit" class="white--text" value="LOGIN">
+                      </v-btn>
+      
+                      </v-form>
+                    </v-card-text>
+      
+                    <br>
+                    <br>
+      
+                  </v-card>
+                </v-col>
+                <v-col cols="12" md="4"></v-col>
+              </v-row>
+            </v-container>
+
+            
+          </v-col>
+          <v-col cols="12" md="1"></v-col>
+
+      </v-row>
+    </v-container> 
+
+    </v-app>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+  <script>
+    new Vue({
+      el: '#app',
+      vuetify: new Vuetify(),
+      data: {
+        login: {
+          username: '',
+          password: '',
+        }
+      },
+    })
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,56 @@
+version: "3.7"
+
+services: 
+
+    psql:
+        build: ./postgres
+        container_name: postgres
+        volumes:
+            - ./postgres/postgres-volume:/var/lib/postgresql/data
+        restart: always 
+        env_file:
+            - ./.env
+        environment:
+            PSQL_CREATE_COMMAND: ${PSQL_CREATE_COMMAND}
+            POSTGRES_USERNAME: ${POSTGRES_USERNAME}
+            POSTGRES_DATABASE_NAME: ${POSTGRES_DATABASE_NAME}
+        expose: 
+             - 5432
+
+    mongo:
+        image: 'mongo'  
+        container_name: mongo
+        volumes:
+            - ./mongo/mongo-volume:/data/db
+        ports:
+            - '27017-27019:27017-27019'
+        restart: always
+        depends_on:
+            - psql
+
+    flask:
+        build: ./flask  
+        container_name: flask 
+        restart: always 
+        environment:
+            - APP_SETTINGS=/client-volume/data/production_config.cfg
+        volumes:
+            - ./flask/flask-volume:/client-volume/data
+            - /expression-files-volume:/client-volume/expression-data
+        expose: 
+             - 8080    
+        depends_on:
+             - psql
+             - mongo
+
+    nginx:
+        build: ./nginx
+        container_name: nginx
+        restart: always
+        volumes: 
+            - ./nginx/data/certs:/etc/nginx/certs
+        ports: 
+            - "80:80"   
+            - "443:443"
+        
+
