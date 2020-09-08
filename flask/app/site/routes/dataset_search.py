@@ -1,9 +1,13 @@
 import flask
+import jwt
 from flask import session
 from smtplib import SMTP
 from flask import Flask, Blueprint, render_template, request, Response, redirect, url_for, jsonify
 from app.api.models import datasets, UserModel, _runSql
 import numpy
+from flask_login import login_user
+from app import app
+from flask_cors import CORS, cross_origin
 
 
 module = Blueprint('dataset_search', __name__)
@@ -16,14 +20,21 @@ def samples_grid():
     ds = datasets.Dataset(dataset_id)
     sampleTable = ds.sampleTable()
     jsonSampleTable = sampleTable.to_json(orient="split")
+    token = data['token']
 
-    if session["loggedIn"] == True:
+    if not token:
+        return jsonify({'message': 'Token is missing!'}), 403
+
+    try: 
+        jwt.decode(token, app.config['SECRET_KEY'])
         if jsonSampleTable != None:
             return jsonSampleTable
         else:
             return {"Message": "No samples found for dataset_id: " + dataset_id}
-    else:
-        return "Access Denied"
+    except:
+        return jsonify({'Message': 'Missing or invalid token.'}), 403
+    
+    return "Access Denied"
 
 
 @module.route("/atlas_samples_grid", methods=['GET', 'POST'])

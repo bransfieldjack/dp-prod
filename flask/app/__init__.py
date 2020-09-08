@@ -7,11 +7,13 @@ import os
 from os import environ
 from flask_cors import CORS, cross_origin
 
+
 app = Flask(__name__)
+cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 app.wsgi_app = ProxyFix(app.wsgi_app)
 app.config['SECRET_KEY'] = 'st3mf0rmatics2010'
 # login = LoginManager(app)
-cors = CORS(app, resources={r"/foo": {"origins": "*"}})
+cors = CORS(app, resources={r"/*": {"origins": "*"}})
 app.config['CORS_HEADERS'] = 'Content-Type'
 # load dotenv in the base root
 APP_ROOT = os.path.join(os.path.dirname(__file__), '..')   # refers to application_top/or app root. 
@@ -26,6 +28,7 @@ authorizations = {  # This dictionary tells flask_rest_plus to expect a token.
         'name': 'X-API-KEY'
     }
 } 
+
 
 api_app = Api(app = app, authorizations=authorizations, version = "1.0", 
 		  title = "Stemformatics API", 
@@ -53,6 +56,7 @@ def specs_url(self):
 
 Api.specs_url = specs_url
 
+from app.api.routes.graphql import module
 from app.api.routes.browse import module
 from app.api.routes.download import module
 from app.api.routes.dataset import module
@@ -69,6 +73,7 @@ from app.site.routes.dataset_upload import module
 from flask_swagger_ui import get_swaggerui_blueprint    # Required for swagger UI templating. 
 
 # API Routes:
+app.register_blueprint(api.routes.graphql.module, url_prefix='/api')
 app.register_blueprint(api.routes.browse.module, url_prefix='/api')
 app.register_blueprint(api.routes.dataset.module, url_prefix='/api')
 app.register_blueprint(api.routes.download.module, url_prefix='/api')

@@ -1,11 +1,17 @@
 import flask
 import os
+import jwt
+import json
+from flask_login import login_user
+from app import app
+from flask_cors import CORS, cross_origin
 from smtplib import SMTP
 from flask import Flask, session, Blueprint, render_template, request, Response, redirect, url_for, jsonify
 from app.api.models import datasets, UserModel, _runSql
 import pymongo
 from pymongo import MongoClient
 import flask_login
+from bson import json_util
 from bson.json_util import dumps
 from app import app
 from datetime import date
@@ -134,23 +140,57 @@ def transferAnnotator():
 
 @module.route('/search_mongo', methods=['GET', 'POST'])
 def search_mongo():
-    myclient = pymongo.MongoClient(mongo_uri)
+
+    data = request.get_json()
+    dataset_id = data['dataset_id']
+    token = data['token']
+    myclient = pymongo.MongoClient(mongo_uri)     
     database = myclient["dataportal_prod_meta"]
     collection = database["datasets"]
-    result = collection.find({"$text": {"$search": searchString}})
-    return result
+    result = collection.find_one({'dataset_id': dataset_id})
+    
+    del result['_id']
+
+    if not token:
+        return jsonify({'message': 'Token is missing!'}), 403
+
+    try: 
+        jwt.decode(token, app.config['SECRET_KEY'])
+        if result != None:
+            return json.dumps(result)
+        else:
+            return {"Message": "No samples found for dataset_id: " + dataset_id}
+    except:
+        return jsonify({'Message': 'Missing or invalid token.'}), 403
+    
+    return "Access Denied"
+
+
+@module.route('/check_dataset_id', methods=['GET', 'POST'])
+def check_dataset_id():
+    """
+    A simple, reusable check to see if a DatasetID already exists in the database. 
+    """
+    data = request.get_json()
+    dataset_id = data['dataset_id']
+    token = data['token']
+    myclient = pymongo.MongoClient(mongo_uri)     
+    database = myclient["dataportal_prod_meta"]
+    collection = database["datasets"]
+    result = collection.find_one({'dataset_id': dataset_id})
+
+    if result == None:
+        return "Dataset ID does not exist"
+    if result != None:
+        return "Dataset ID does exist"
 
 
 @module.route("/summary_table_mongo", methods=['GET', 'POST'])
 def summary_table_mongo():
     
-    myclient = pymongo.MongoClient(mongo_uri) 
-    print("my client")
-    
+    myclient = pymongo.MongoClient(mongo_uri)     
     database = myclient["dataportal_prod_meta"]
-    
     collection = database["datasets"]
-    print(collection)
     result = collection.find()
 
     dict_list = []
