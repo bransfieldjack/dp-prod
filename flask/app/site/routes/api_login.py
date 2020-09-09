@@ -58,20 +58,14 @@ def frontend_auth():
     username = payload["username"]
     password = payload["password"]
 
-    # print(username)
-    # print(password)
-    
-    # return {
-    #     "username": username,
-    #     "password": password
-    # }
-
     _username = UserModel.User(username)
     auth = _username.authenticate(username, password)
+    role = _username.role(username)
 
     if auth == True:
         token = jwt.encode({"user": username, "password": password, "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, app.config['SECRET_KEY'])  #  Expiration is a reserved part of the payload in JWT
         return {
+            'role': role,
             'token': token.decode('UTF-8'),
             'message': 'authorized'
             }

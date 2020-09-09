@@ -42,17 +42,23 @@ public_dataset_expression_name_space = api_app.namespace('expression', descripti
 private_dataset_name_space = api_app.namespace('(private) samples / metadata', description='Data-types: samples, metadata ')
 private_dataset_expression_name_space = api_app.namespace('(private) expression', description='Data-types: expression ')
 
+
+########################################################################################################################################################################
 # Prod swagger config (https)
 # @property
 # def specs_url(self):
 #     """Monkey patch for HTTPS - this is to get swagger ui docs working with both http & https. Dev server might be http while prod https for example. """
 #     return url_for(self.endpoint('specs'), _external=True, _scheme='https')
+########################################################################################################################################################################
 
+
+########################################################################################################################################################################
 # Dev swagger config (http)
 @property
 def specs_url(self):
     """Monkey patch for HTTPS - this is to get swagger ui docs working with both http & https. Dev server might be http while prod https for example. """
     return url_for(self.endpoint('specs'), _external=True, _scheme='http')
+########################################################################################################################################################################
 
 Api.specs_url = specs_url
 
@@ -61,6 +67,7 @@ from app.api.routes.browse import module
 from app.api.routes.download import module
 from app.api.routes.dataset import module
 from app.api.routes.upload import module
+from app.api.routes.qc import module
 
 from app.site.routes.api_login import module
 from app.site.routes.admin import module
@@ -78,6 +85,7 @@ app.register_blueprint(api.routes.browse.module, url_prefix='/api')
 app.register_blueprint(api.routes.dataset.module, url_prefix='/api')
 app.register_blueprint(api.routes.download.module, url_prefix='/api')
 app.register_blueprint(api.routes.upload.module, url_prefix='/api')
+app.register_blueprint(api.routes.qc.module, url_prefix='/api')
 
 # Site routes:  (Sites is just a place where you can store either templates or swagger/UI documentation.)
 app.register_blueprint(site.routes.api_login.module, url_prefix='/')
