@@ -108,7 +108,6 @@ def samples_update():
 def atlas_update():
     data = request.get_json()
     payload = data['data']
-    print(payload)
     datasetId = payload['dataset_id']
     column = payload['column']
     rowIds = payload['rowIds']
@@ -170,6 +169,47 @@ def get_assigned_datasets():
         _dict_list.append(_dict)
 
     return {'assigned_datasets': _dict_list}
+
+
+@module.route("/get_all_myeloid_atlas", methods=['GET', 'POST'])
+def get_all_myeloid_atlas():
+
+    data = request.get_json()
+    token = data['token']
+
+    mongo_uri = app.config["MONGO_URI"]
+    myclient = pymongo.MongoClient(mongo_uri)
+    database = myclient["imac_v1"]
+    collection = database["samples"]
+    cursor = collection.find()
+
+    _dict_list = []
+    for item in cursor:
+        del item['_id']
+        _dict_list.append(item)
+    
+    return {"data": _dict_list}
+
+
+@module.route("/get_all_blood_atlas", methods=['GET', 'POST'])
+def get_all_blood_atlas():
+
+    data = request.get_json()
+    token = data['token']
+
+    mongo_uri = app.config["MONGO_URI"]
+    myclient = pymongo.MongoClient(mongo_uri)
+    database = myclient["blood_v1"]
+    collection = database["samples"]
+    cursor = collection.find()
+
+    _dict_list = []
+    for item in cursor:
+        del item['_id']
+        _dict_list.append(item)
+    
+    return {"data": _dict_list}
+
 
     
 @module.after_request  # Necessary to add the response headers for comms back to the UI. Add only authorized front end applications, example: https://ui-dp.stemformatics.org

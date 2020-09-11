@@ -17,7 +17,7 @@ from app import app
 
 
 module = Blueprint('qc', __name__)
-
+mongo_uri = app.config["MONGO_URI"]
 
 @module.route('/new_qc_job', methods=['GET', 'POST'])
 def new_qc_job():
@@ -67,4 +67,26 @@ def jobs_status():
     return {
         "processing": count_processing,
         "processed": count_processed
+    }
+
+
+@module.route('/get_jobs', methods=['GET', 'POST'])
+def get_jobs():
+    """
+    Returns all qc jobs. 
+    """
+    data = request.get_json()
+    token = data['token']
+    myclient = pymongo.MongoClient(mongo_uri)     
+    database = myclient["qc"]
+    collection = database["jobs"]
+    result = collection.find()
+
+    jobs_list = []
+    for item in result:
+        del item['_id']
+        jobs_list.append(item)
+
+    return {
+        "data": jobs_list
     }
