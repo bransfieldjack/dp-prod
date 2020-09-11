@@ -24,7 +24,7 @@ Or:
  - python -m flask run --host=0.0.0.0 --port=5001
 
 #### Docker: 
-Load any/all your environment variables into the cloned repo location. 
+Load any/all your environment variables into the cloned repo location. (Dont forget to update .cfg file - app no longer uses .env file for config)
 The simplest way to do this is to use a .env file, but you can run export VAR=VALUE if you like. 
 If you are using a .env file, run the load_vars.sh script to automate loading the environment variables. 
 
