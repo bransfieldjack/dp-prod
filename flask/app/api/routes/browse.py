@@ -173,43 +173,164 @@ def get_assigned_datasets():
 
 @module.route("/get_all_myeloid_atlas", methods=['GET', 'POST'])
 def get_all_myeloid_atlas():
-
+    """
+    Get all datasets in the atlas, return the atlas data for 
+    the dataset but also the sample annotation information as well from the dataportal_prod_meta/datasets table.
+    """
     data = request.get_json()
     token = data['token']
-
+    
+    # Configs: 
     mongo_uri = app.config["MONGO_URI"]
     myclient = pymongo.MongoClient(mongo_uri)
-    database = myclient["imac_v1"]
-    collection = database["samples"]
-    cursor = collection.find()
 
-    _dict_list = []
-    for item in cursor:
-        del item['_id']
-        _dict_list.append(item)
+    myeloid_database = myclient["imac_v1"]
+    myeloid_collection = myeloid_database["samples"]
+    samples_database = myclient["dataportal_prod_meta"]
+    samples_collection = samples_database["datasets"]
+
+    myeloid_items = []
+    for myeloid_item in myeloid_collection.find():
+        del myeloid_item['_id']
+
+        for title in samples_collection.find({'dataset_id': int(myeloid_item['dataset_id'])}):
+            del title['_id']
+            
+            res = {
+                "atlas": myeloid_item,
+                "meta": title
+            }
+
+            myeloid_items.append(res)
+         
+    return json.dumps(myeloid_items)
+
+
+@module.route("/get_single_myeloid_atlas", methods=['GET', 'POST'])
+def get_single_myeloid_atlas():
+    """
+    Get a single dataset in the atlas.
+    """
+    data = request.get_json()
+    dataset_id = data['dataset_id']
+    token = data['token']
     
-    return {"data": _dict_list}
+    # Configs: 
+    mongo_uri = app.config["MONGO_URI"]
+    myclient = pymongo.MongoClient(mongo_uri)
+
+    myeloid_database = myclient["imac_v1"]
+    myeloid_collection = myeloid_database["samples"]
+    samples_database = myclient["dataportal_prod_meta"]
+    samples_collection = samples_database["datasets"]
+
+    pre_myeloid_item = myeloid_collection.find_one({'dataset_id': str(dataset_id)})
+    del pre_myeloid_item['_id']
+    myeloid_item = pre_myeloid_item
+
+    myeloid_items = []
+    for title in samples_collection.find({'dataset_id': dataset_id}):
+        del title['_id']
+        
+        res = {
+            "atlas": myeloid_item,
+            "meta": title
+        }
+
+        myeloid_items.append(res)
+         
+    return json.dumps(myeloid_items)
+
+
+# @module.route("/get_all_myeloid_atlas", methods=['GET', 'POST'])
+# def get_all_myeloid_atlas():
+
+#     data = request.get_json()
+#     token = data['token']
+
+#     mongo_uri = app.config["MONGO_URI"]
+#     myclient = pymongo.MongoClient(mongo_uri)
+#     database = myclient["imac_v1"]
+#     collection = database["samples"]
+#     cursor = collection.find()
+
+#     _dict_list = []
+#     for item in cursor:
+#         del item['_id']
+#         _dict_list.append(item)
+    
+#     return {"data": _dict_list}
 
 
 @module.route("/get_all_blood_atlas", methods=['GET', 'POST'])
 def get_all_blood_atlas():
-
+    """
+    Get all datasets in the atlas, return the atlas data for 
+    the dataset but also the sample annotation information as well from the dataportal_prod_meta/datasets table.
+    """
     data = request.get_json()
     token = data['token']
-
+    
+    # Configs: 
     mongo_uri = app.config["MONGO_URI"]
     myclient = pymongo.MongoClient(mongo_uri)
-    database = myclient["blood_v1"]
-    collection = database["samples"]
-    cursor = collection.find()
 
-    _dict_list = []
-    for item in cursor:
-        del item['_id']
-        _dict_list.append(item)
+    blood_database = myclient["blood_v1"]
+    blood_collection = blood_database["samples"]
+    samples_database = myclient["dataportal_prod_meta"]
+    samples_collection = samples_database["datasets"]
+
+    blood_items = []
+    for blood_item in blood_collection.find():
+        del blood_item['_id']
+
+        for title in samples_collection.find({'dataset_id': int(blood_item['dataset_id'])}):
+            del title['_id']
+            
+            res = {
+                "atlas": blood_item,
+                "meta": title
+            }
+
+            blood_items.append(res)
+         
+    return json.dumps(blood_items)
+
+
+@module.route("/get_single_blood_atlas", methods=['GET', 'POST'])
+def get_single_blood_atlas():
+    """
+    Get a single dataset in the atlas.
+    """
+    data = request.get_json()
+    dataset_id = data['dataset_id']
+    token = data['token']
     
-    return {"data": _dict_list}
+    # Configs: 
+    mongo_uri = app.config["MONGO_URI"]
+    myclient = pymongo.MongoClient(mongo_uri)
 
+    blood_database = myclient["blood_v1"]
+    blood_collection = blood_database["samples"]
+    samples_database = myclient["dataportal_prod_meta"]
+    samples_collection = samples_database["datasets"]
+
+    pre_blood_item = blood_collection.find_one({'dataset_id': str(dataset_id)})
+    del pre_blood_item['_id']
+    blood_item = pre_blood_item
+
+    blood_items = []
+    for title in samples_collection.find({'dataset_id': dataset_id}):
+        del title['_id']
+        
+        res = {
+            "atlas": blood_item,
+            "meta": title
+        }
+
+        blood_items.append(res)
+         
+    return json.dumps(blood_items)
 
     
 @module.after_request  # Necessary to add the response headers for comms back to the UI. Add only authorized front end applications, example: https://ui-dp.stemformatics.org
