@@ -1,4 +1,4 @@
-from ariadne import QueryType, ObjectType, graphql_sync, make_executable_schema
+from ariadne import QueryType, ObjectType, graphql_sync, make_executable_schema, gql
 from ariadne.constants import PLAYGROUND_HTML
 from flask import Flask, request, jsonify, Response, Blueprint
 from flask_cors import CORS, cross_origin
@@ -11,6 +11,9 @@ import json
 module = Blueprint('graphql', __name__)
 
 
+mongo_uri = app.config["MONGO_URI"]
+myclient = pymongo.MongoClient(mongo_uri)
+
 # #Support doc: https://ariadnegraphql.org/docs/intro
 # # The gql utility function helps catch errors in your gql setup - use it!
 
@@ -19,23 +22,30 @@ module = Blueprint('graphql', __name__)
 # Underneath are the queries. 
 
 
-
-type_defs = """
+type_defs = gql("""
     scalar JSON 
+
     type Query {
         hello: String!
-        user: User
+        user: String!
         datasets: JSON!
+        dataset_with_id(_id: ID): JSON!
     }
 
     type User {
         username: String!
     }
-"""
+
+    type Dataset {
+        id: ID
+    }
+
+""")
 
 
 query = ObjectType("Query")
 user = ObjectType("User")
+dataset = ObjectType('Dataset')
 
 
 @query.field("user")
@@ -46,15 +56,29 @@ def resolve_username(obj, *_):
     return user_agent
 
 
+@query.field("dataset_with_id")
+# @cross_origin(origin='*',headers=['Content-Type','Authorization'])
+def resolve_dataset(_, info, _id):
+    request = info.context   
+
+    database = myclient["dataportal_prod_meta"]
+    collection = database["datasets"]
+    cursor = collection.find({'dataset_id': int(_id)})  
+
+    dict_list = []
+    for item in cursor:    
+        del item["_id"] # Drop the object ID or the json encoding will contain slashes. 
+        conv = json.dumps(item, default=json_util.default)
+        return conv
+
+
 @query.field("datasets")
 # @cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def resolve_datasets(_, info):
 
-    mongo_uri = app.config["MONGO_URI"]
-    myclient = pymongo.MongoClient(mongo_uri)
     database = myclient["dataportal_prod_meta"]
     collection = database["datasets"]
-    cursor = collection.find()
+    cursor = collection.find()     
 
     # print(cursor[3])
 
