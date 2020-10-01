@@ -68,8 +68,8 @@ def resolve_dataset(_, info, _id):
     dict_list = []
     for item in cursor:    
         del item["_id"] # Drop the object ID or the json encoding will contain slashes. 
-        conv = json.dumps(item, default=json_util.default)
-        return conv
+        # conv = json.dumps(item, default=json_util.default)
+        return item
 
 
 @query.field("datasets")

@@ -300,6 +300,21 @@
           var file= document.querySelector('#file');
           formData.append("file", file.files[0]);
 
+
+
+          // axios.post("/api/add_dataset_samples", formData, {
+          // headers: {
+          //     'Content-Type': 'multipart/form-data'
+          //     }
+          // }).then(response => console.log(response)) //this.samples = Object.values(response.data.data))
+
+
+          axios.post("/api/add_dataset_samples", formData, {
+          headers: {
+              'Content-Type': 'multipart/form-data'
+              }
+          }).then(response => this.samples = Object.values(response.data.data))
+
           axios.post("/api/add_dataset_samples", formData, {
           headers: {
               'Content-Type': 'multipart/form-data'
@@ -319,6 +334,10 @@
               'Content-Type': 'multipart/form-data'
               }
           }).then(response => console.log(response.data.status))
+
+
+
+
 
           // .then(response => this.dataFormatResponse = response.data)  
 

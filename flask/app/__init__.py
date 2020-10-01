@@ -64,6 +64,8 @@ Api.specs_url = specs_url
 
 from app.api.routes.graphql import module
 from app.api.routes.browse import module
+from app.api.routes.s3_storage import module
+
 from app.api.routes.download import module
 from app.api.routes.dataset import module
 from app.api.routes.upload import module
@@ -82,6 +84,7 @@ from flask_swagger_ui import get_swaggerui_blueprint    # Required for swagger U
 # API Routes:
 app.register_blueprint(api.routes.graphql.module, url_prefix='/api')
 app.register_blueprint(api.routes.browse.module, url_prefix='/api')
+app.register_blueprint(api.routes.s3_storage.module, url_prefix='/api')
 app.register_blueprint(api.routes.dataset.module, url_prefix='/api')
 app.register_blueprint(api.routes.download.module, url_prefix='/api')
 app.register_blueprint(api.routes.upload.module, url_prefix='/api')
