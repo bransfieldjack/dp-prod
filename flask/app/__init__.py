@@ -11,8 +11,9 @@ from flask_cors import CORS, cross_origin
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app)
 app.config['SECRET_KEY'] = 'st3mf0rmatics2010'
-cors = CORS(app, resources={r"/*": {"origins": "*"}})
-cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
+cors = CORS(app)
+# cors = CORS(app, resources={r"/*": {"origins": "*"}})
+# cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 app.config['CORS_HEADERS'] = 'Content-Type'
 
 # load dotenv in the base root

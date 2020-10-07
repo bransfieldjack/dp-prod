@@ -55,6 +55,7 @@ def getAnnotator():
 
 
 @module.route('/assignAnnotator', methods=['GET', 'POST'])
+@cross_origin()
 def assignAnnotator():
     """
     Assigns a user to a dataset for annotation. 
@@ -67,16 +68,17 @@ def assignAnnotator():
     dataset_id = payload['dataset_id']
     username = payload['username']
     password = payload['password']
+    email = username['user']
 
-    _username = UserModel.User(username)
-    auth = _username.authenticate(username, password)
+    _username = UserModel.User(email)
+    auth = _username.authenticate(email, password)
 
     if auth == True:
         document = collection.find_one({'dataset_id': dataset_id})
         if document["annotator"] == "":
             try: 
                 myquery = { "dataset_id": dataset_id }
-                newvalues = { "$set": { "annotator": username, "can_annotate": True } }
+                newvalues = { "$set": { "annotator": email, "can_annotate": True } }
                 collection.update_one(myquery, newvalues)
 
                 """
@@ -86,7 +88,7 @@ def assignAnnotator():
                 # today = date.today()
                 # governanceCollection.insert({"name" : username, "role" : role, "notes" : message, "date" : today })
                 
-                return username + " " + "is now annotating this dataset."
+                return email + " " + "is now annotating this dataset."
                 # collection.update({"dataset_id": dataset_id}, {"$set": {"annotator": username, "can_annotate": true}}, upsert=False)
             except:
                 return "An exception occurred"
@@ -205,5 +207,13 @@ def summary_table_mongo():
         return dumps(dict_list)
     else:
         return "Access Denied"
+
+
+@module.after_request  # Necessary to add the response headers for comms back to the UI. Add only authorized front end applications, example: https://ui-dp.stemformatics.org
+def add_headers(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = 'OPTIONS,GET,PUT,POST,DELETE'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+    return response
 
 
