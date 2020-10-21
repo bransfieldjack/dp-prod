@@ -68,7 +68,7 @@ def assignAnnotator():
     dataset_id = payload['dataset_id']
     username = payload['username']
     password = payload['password']
-    email = username['user']
+    email = username
 
     _username = UserModel.User(email)
     auth = _username.authenticate(email, password)
@@ -102,14 +102,14 @@ def assignAnnotator():
 @module.route('/unAssignAnnotator', methods=['GET', 'POST'])
 def unAssignAnnotator():
     """
-    Assigns a user to a dataset for annotation. 
+    Remove an annotator.
     """
 
     data = request.get_json()
     payload = data['data']
     dataset_id = payload['dataset_id']
-    title = payload['title']
-    annotator = payload['annotator']
+    # title = payload['title']
+    annotator = payload['username']
 
     try:
         myquery = { "dataset_id": dataset_id }
@@ -179,12 +179,15 @@ def check_dataset_id():
     myclient = pymongo.MongoClient(mongo_uri)     
     database = myclient["dataportal_prod_meta"]
     collection = database["datasets"]
-    result = collection.find_one({'dataset_id': dataset_id})
+    result = collection.find_one({'dataset_id': int(dataset_id)})
+
+    # del result['_id']
 
     if result == None:
-        return "Dataset ID does not exist"
+        return {"result": "false", "response": "Dataset ID does not exist"}
+
     if result != None:
-        return "Dataset ID does exist"
+        return {"result": "true", "response": "Dataset ID already exists!"}
 
 
 @module.route("/summary_table_mongo", methods=['GET', 'POST'])

@@ -22,19 +22,24 @@ def samples_grid():
     jsonSampleTable = sampleTable.to_json(orient="split")
     token = data['token']
 
-    if not token:
-        return jsonify({'message': 'Token is missing!'}), 403
+    if jsonSampleTable != None:
+        return jsonSampleTable
+    else:
+        return {"Message": "No samples found for dataset_id: " + dataset_id}
+        
+    # if not token:
+    #     return jsonify({'message': 'Token is missing!'}), 403
 
-    try: 
-        jwt.decode(token, app.config['SECRET_KEY'])
-        if jsonSampleTable != None:
-            return jsonSampleTable
-        else:
-            return {"Message": "No samples found for dataset_id: " + dataset_id}
-    except:
-        return jsonify({'Message': 'Missing or invalid token.'}), 403
+    # try: 
+    #     jwt.decode(token, app.config['SECRET_KEY'])
+    #     if jsonSampleTable != None:
+    #         return jsonSampleTable
+    #     else:
+    #         return {"Message": "No samples found for dataset_id: " + dataset_id}
+    # except:
+    #     return jsonify({'Message': 'Missing or invalid token.'}), 403
     
-    return "Access Denied"
+    # return "Access Denied"
 
 
 @module.route("/atlas_samples_grid", methods=['GET', 'POST'])

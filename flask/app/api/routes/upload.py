@@ -95,6 +95,29 @@ def add_dataset_samples():
         return {"columns": existing_table_columns_flat, "data": data_json}
 
 
+@module.route('/validate_samples', methods=['GET', 'POST'])
+def validate_samples():
+    postgres_username = app.config['POSTGRES_USERNAME'] 
+    postgres_password = app.config["POSTGRES_PASSWORD"]
+    postgres_database_name = app.config["POSTGRES_DATABASE_NAME"]
+    postgres_host = app.config["POSTGRES_HOST"]
+    postgres_port = app.config["POSTGRES_PORT"]
+    postgres_uri = app.config["PSQL_URI"]
+    conn = psycopg2.connect(postgres_uri)
+    cursor = conn.cursor()
+
+    existing_table_columns = _runSql("SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'samples';")
+    existing_table_columns_flat = [i[0] for i in existing_table_columns]
+
+    payload = request.get_json()
+    data = payload['data']
+
+    comparison = bool(set(data).intersection(existing_table_columns_flat))
+    print(comparison)
+
+    return {"validated": comparison}
+
+
 @module.route('/save_dataset', methods=['GET', 'POST'])
 def save_dataset():
     """
@@ -112,7 +135,11 @@ def save_dataset():
     mongo_uri = app.config["MONGO_URI"]
 
     received = request.get_json()
+
+    print(received)
     
+    # return "testing"
+
     data = received['data']
     annotator_data = data['annotator']
     dataset_metadata_data = data['dataset']
