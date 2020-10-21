@@ -81,18 +81,18 @@ def new_qc_job():
     metaCollection = metaDatabase["datasets"]
 
     insertMeta = metaCollection.insert_one({ "dataset_id": received['ds_id'],
-        "title":"",
-        "authors":"",
-        "description":"",
-        "platform":"",
-        "number_of_samples":"",
-        "private":"",
-        "pubmed_id":"",
-        "annotator":"",
-        "can_annotate":"",
-        "name":"",
-        "accession":"",
-        "sample_types":[]
+        "title":" ",
+        "authors":" ",
+        "description":" ",
+        "platform":" ",
+        "number_of_samples":" ",
+        "private":" ",
+        "pubmed_id":" ",
+        "annotator":" ",
+        "can_annotate":" ",
+        "name":" ",
+        "accession":" ",
+        "sample_types":[ ]
     })
 
     return {

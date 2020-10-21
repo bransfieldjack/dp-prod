@@ -136,12 +136,11 @@ def save_dataset():
 
     received = request.get_json()
 
-    print(received)
-    
-    # return "testing"
-
     data = received['data']
     annotator_data = data['annotator']
+
+    print(annotator_data)
+
     dataset_metadata_data = data['dataset']
     samples_data = data['samples']
     datasetId = int(dataset_metadata_data['dataset_id'])
@@ -198,46 +197,27 @@ def save_dataset():
             title_dict = dataset_metadata_data['title']
             authors_dict = dataset_metadata_data['authors']
             platform_dict = dataset_metadata_data['platform']
+            private_dict = dataset_metadata_data['private']
             pubmed_dict = dataset_metadata_data['pubmed']
             description_dict = dataset_metadata_data['description']
 
             value_dict = {
-                "dataset_id": dataset_id_dict,
-                "datasets": [
-                    {
-                        "id": dataset_id_dict,
-                        "lab": "",
-                        "dtg": "",
-                        "handle": "", 
-                        "published" : "", 
-                        "private" : "", 
-                        "chip_type" : "", 
-                        "min_y_axis" : "", 
-                        "show_yugene" : "", 
-                        "show_limited" : "",
-                        "db_id" : "", 
-                        "number_of_samples" : "", 
-                        "data_type_id" : "", 
-                        "mapping_id" : "", 
-                        "log_2" : ""
-                    }
-                ],
-                "dataset_metadata": [
-                    {
-                        "dataset_id": dataset_id_dict,
-                        "title": title_dict,
-                        "authors": authors_dict,
-                        "description": description_dict,
-                        "pubmed": pubmed_dict,
-                        "contact_name": "",
-                        "contact_email": "",
-                        "release_date": "",
-                        "platform": ""
-                    }
-                ]
-            }
+                "dataset_id":dataset_id_dict,
+                "title":title_dict,
+                "authors":authors_dict,
+                "description":description_dict,
+                "platform":platform_dict,
+                "number_of_samples":"",
+                "private":private_dict,
+                "pubmed_id":pubmed_dict,
+                "annotator":"",
+                "can_annotate":"",
+                "name":"",
+                "accession":"",
+                "sample_types":[]
+                }
                 
-            dataset_metadata_data_write = collection.insert_one(value_dict)
+            dataset_metadata_data_write = collection.update_one({'dataset_id':dataset_id_dict}, {"$set": value_dict}, upsert=False)
        
             """
             ========================================
