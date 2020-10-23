@@ -2,6 +2,7 @@ import flask
 import os
 import jwt
 import json
+from app.api.models import _runSql
 from flask_login import login_user
 from app import app
 from flask_cors import CORS, cross_origin
@@ -175,13 +176,14 @@ def check_dataset_id():
     """
     data = request.get_json()
     dataset_id = data['dataset_id']
+    # test = _runSql("select * from samples where dataset_id=%s", (dataset_id))
+    # print(test)
+
     token = data['token']
     myclient = pymongo.MongoClient(mongo_uri)     
     database = myclient["dataportal_prod_meta"]
     collection = database["datasets"]
     result = collection.find_one({'dataset_id': int(dataset_id)})
-
-    # del result['_id']
 
     if result == None:
         return {"result": "false", "response": "Dataset ID does not exist"}

@@ -228,6 +228,9 @@ def save_dataset():
             query = "INSERT INTO samples ({}) VALUES %s".format(','.join(columns))
 
             values = [[value for value in row.values()] for row in rows]
+
+            print("printing values:")
+            print(values)
             
             psycopg2.extras.execute_values(cursor, query, values)
             updated_records = cursor.rowcount
