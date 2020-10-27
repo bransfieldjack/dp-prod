@@ -139,7 +139,7 @@ def get_jobs():
     Returns all qc jobs. 
     """
     data = request.get_json()
-    token = data['token']
+    # token = data['token']
     myclient = pymongo.MongoClient(mongo_uri)     
     database = myclient["qc"]
     collection = database["jobs"]

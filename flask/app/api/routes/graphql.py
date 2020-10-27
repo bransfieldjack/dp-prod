@@ -60,7 +60,8 @@ def resolve_username(obj, *_):
 # @cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def resolve_dataset(_, info, _id):
     request = info.context   
-
+    mongo_uri = 'mongodb://localhost:27017'
+    myclient = pymongo.MongoClient(mongo_uri)
     database = myclient["dataportal_prod_meta"]
     collection = database["datasets"]
     cursor = collection.find({'dataset_id': int(_id)})  
@@ -75,16 +76,11 @@ def resolve_dataset(_, info, _id):
 @query.field("datasets")
 # @cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def resolve_datasets(_, info):
-
+    mongo_uri = 'mongodb://localhost:27017'
+    myclient = pymongo.MongoClient(mongo_uri)
     database = myclient["dataportal_prod_meta"]
     collection = database["datasets"]
     cursor = collection.find()     
-
-    # print(cursor[3])
-
-    # print(cursor[3]["dataset_id"])
-    
-    
     dict_list = []
     for item in cursor:    
 
@@ -130,3 +126,10 @@ def graphql_server():
     return jsonify(result), status_code
 
 schema = make_executable_schema(type_defs, query, user)
+
+@module.after_request  # Necessary to add the response headers for comms back to the UI. Add only authorized front end applications, example: https://ui-dp.stemformatics.org
+def add_headers(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = 'OPTIONS,GET'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+    return response

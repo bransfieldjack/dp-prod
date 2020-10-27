@@ -4,7 +4,7 @@ from collections import OrderedDict
 from jinja2 import TemplateNotFound
 import itertools
 import re, os
-import boto3
+# import boto3
 import glob
 from flask import Flask, Blueprint, render_template, request, Response, redirect, url_for, jsonify
 from flask_cors import CORS # Extension for handling Cross Origin Resource Sharing.

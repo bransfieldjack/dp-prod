@@ -86,7 +86,7 @@ class Dataset(object):
             detectionThreshold                                     4.13
         """
         if self._metadataTable is None: # make a query and construct the DataFrame and cache it
-            myclient = pymongo.MongoClient(mongo_uri) # Mongon container name is 'mongo'. # local mongodb server.   # Connects to the mongodb daabase and returns everything.
+            myclient = pymongo.MongoClient(mongo_uri) 
             database = myclient["dataportal_prod_meta"]
             collection = database["datasets"]
             result = collection.find({"dataset_id": self.datasetId})

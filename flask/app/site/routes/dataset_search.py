@@ -3,7 +3,7 @@ import jwt
 from flask import session
 from smtplib import SMTP
 from flask import Flask, Blueprint, render_template, request, Response, redirect, url_for, jsonify
-from app.api.models import datasets, UserModel, _runSql
+from app.api.models import datasets, atlas, UserModel, _runSql
 import numpy
 from flask_login import login_user
 from app import app
@@ -26,20 +26,18 @@ def samples_grid():
         return jsonSampleTable
     else:
         return {"Message": "No samples found for dataset_id: " + dataset_id}
-        
-    # if not token:
-    #     return jsonify({'message': 'Token is missing!'}), 403
 
-    # try: 
-    #     jwt.decode(token, app.config['SECRET_KEY'])
-    #     if jsonSampleTable != None:
-    #         return jsonSampleTable
-    #     else:
-    #         return {"Message": "No samples found for dataset_id: " + dataset_id}
-    # except:
-    #     return jsonify({'Message': 'Missing or invalid token.'}), 403
-    
-    # return "Access Denied"
+
+@module.route("/atlas_all_samples", methods=['GET', 'POST'])
+def atlas_all_samples():
+    """
+    Provide a project name and return all samples for the project, 'myeloid', 'blood' etc.
+    """
+    data = request.get_json()
+    project = data['project']
+    atlas_project = atlas.AtlasSamples(project)
+    samples = atlas_project.getSamples()
+    return samples
 
 
 @module.route("/atlas_samples_grid", methods=['GET', 'POST'])
