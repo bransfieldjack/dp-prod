@@ -6,7 +6,6 @@ and we want to fetch sample table or expression matrix.
 import json, os, pandas
 from flask import request, Response, Blueprint, session
 from app.api.models import datasets
-from app.api.models import datasets
 from flask_restplus import Resource, Api
 from app import lookup_dataset_name_space, public_dataset_name_space, public_dataset_expression_name_space, private_dataset_name_space, private_dataset_expression_name_space, api_app
 from app.api.models import datasets, UserModel, _runSql

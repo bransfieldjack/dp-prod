@@ -3,6 +3,7 @@ from functools import lru_cache
 from collections import OrderedDict
 from jinja2 import TemplateNotFound
 import itertools
+from app.api.models import atlas
 import re, os
 from flask import Flask, Blueprint, render_template, request, Response, redirect, url_for, jsonify
 from flask_cors import CORS # Extension for handling Cross Origin Resource Sharing.
@@ -169,6 +170,18 @@ def get_assigned_datasets():
         _dict_list.append(_dict)
 
     return {'assigned_datasets': _dict_list}
+
+
+@module.route("/get_atlas_data", methods=['GET', 'POST'])
+def get_atlas_data():
+    """
+    Return all atlas production data
+    """
+    data = request.get_json()
+    project = data['project']
+    _atlas = atlas.Atlas(project)
+    datasets = _atlas.getDatasets()
+    return datasets
 
 
 @module.route("/get_all_myeloid_atlas", methods=['GET', 'POST'])

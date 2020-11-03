@@ -33,25 +33,17 @@ Provide an atlas project name and return data based on that.
 # ----------------------------------------------------------
 
 
-class AtlasDataset(object):
-
-    def __init__(self, datasetId, project):
-        self.datasetId = int(datasetId)
-        self.project = project
-
-
-# ----------------------------------------------------------
-# Atlas Samples class
-# ----------------------------------------------------------
-
-
-class AtlasSamples(object):
+class Atlas(object):
 
     def __init__(self, project):
-        self.project = project  # Instance att
+        # self.datasetId = int(datasetId)
+        self.project = project
 
     def getSamples(self):   
-
+        """
+        Method to return all atlas 
+        samples based on specified project. 
+        """
         if self.project == 'blood':
                 database = myclient["blood_v1"]
                 collection = database["samples"]
@@ -63,3 +55,77 @@ class AtlasSamples(object):
         result = collection.find()
         self.getSamples = dumps(result)
         return self.getSamples
+
+    def getDatasets(self):   
+        """
+        Method to return all atlas 
+        samples based on specified project. 
+        """
+
+        # Configs: 
+        mongo_uri = app.config["MONGO_URI"]
+        myclient = pymongo.MongoClient(mongo_uri)
+
+        # if self.datasetId is None:
+        if self.project == 'blood':
+                database = myclient["blood_v1"]
+                collection = database["samples"]
+
+        if self.project == 'myeloid':
+            database = myclient["imac_v1"]
+            collection = database["samples"]
+
+        # myeloid_database = myclient["imac_v1"]
+        # myeloid_collection = myeloid_database["samples"]
+
+        samples_database = myclient["dataportal_prod_meta"]
+        samples_collection = samples_database["datasets"]
+
+        items = []
+        for item in collection.find():
+            del item['_id']
+
+            for title in samples_collection.find({'dataset_id': int(item['dataset_id'])}):
+                del title['_id']
+                
+                res = {
+                    "atlas": item,
+                    "meta": title
+                }
+
+                items.append(res)
+        
+        self.getDatasets = json.dumps(items)
+        return self.getDatasets
+
+            # result = collection.find()
+            # self.getSamples = dumps(result)
+            # return self.getSamples
+
+
+# # ----------------------------------------------------------
+# # Atlas Samples class
+# # ----------------------------------------------------------
+
+
+# class AtlasSamples(object):
+
+#     def __init__(self, project):
+#         self.project = project  # Instance att
+
+#     def getSamples(self):   
+#         """
+#         Method to return all atlas 
+#         samples based on specified project. 
+#         """
+#         if self.project == 'blood':
+#                 database = myclient["blood_v1"]
+#                 collection = database["samples"]
+
+#         if self.project == 'myeloid':
+#             database = myclient["imac_v1"]
+#             collection = database["samples"]
+
+#         result = collection.find()
+#         self.getSamples = dumps(result)
+#         return self.getSamples
