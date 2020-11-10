@@ -35,7 +35,7 @@ def atlas_all_samples():
     """
     data = request.get_json()
     project = data['project']
-    atlas_project = atlas.AtlasSamples(project)
+    atlas_project = atlas.Atlas(project)
     samples = atlas_project.getSamples()
     return samples
 

@@ -219,40 +219,21 @@ def get_all_myeloid_atlas():
     return json.dumps(myeloid_items)
 
 
-@module.route("/get_single_myeloid_atlas", methods=['GET', 'POST'])
-def get_single_myeloid_atlas():
+@module.route("/get_single_atlas_dataset", methods=['GET', 'POST'])
+def get_single_atlas_dataset():
     """
     Get a single dataset in the atlas.
     """
     data = request.get_json()
     dataset_id = data['dataset_id']
     token = data['token']
+    project = data['project']
+    _atlas = atlas.Atlas(project, dataset_id)
+    dataset = _atlas.getSingleDataset()
+    return dataset
+
     
-    # Configs: 
-    mongo_uri = app.config["MONGO_URI"]
-    myclient = pymongo.MongoClient(mongo_uri)
 
-    myeloid_database = myclient["imac_v1"]
-    myeloid_collection = myeloid_database["samples"]
-    samples_database = myclient["dataportal_prod_meta"]
-    samples_collection = samples_database["datasets"]
-
-    pre_myeloid_item = myeloid_collection.find_one({'dataset_id': str(dataset_id)})
-    del pre_myeloid_item['_id']
-    myeloid_item = pre_myeloid_item
-
-    myeloid_items = []
-    for title in samples_collection.find({'dataset_id': dataset_id}):
-        del title['_id']
-        
-        res = {
-            "atlas": myeloid_item,
-            "meta": title
-        }
-
-        myeloid_items.append(res)
-         
-    return json.dumps(myeloid_items)
 
 
 # @module.route("/get_all_myeloid_atlas", methods=['GET', 'POST'])
