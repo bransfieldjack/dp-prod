@@ -182,6 +182,34 @@ def get_atlas_data():
     _atlas = atlas.Atlas(project)
     datasets = _atlas.getDatasets()
     return datasets
+    
+
+@module.route("/atlasAssignAnnotator", methods=['GET', 'POST'])
+def atlasAssignAnnotator():
+
+    data = request.get_json()
+
+    columns = data['columns']
+    rows = data['rows']
+
+    annotator = data['annotator']
+    username = annotator['user']
+    password = data['password']
+    dataset_id = data['dataset_id']
+    project = data['project']
+
+    _username = UserModel.User(username)
+    auth = _username.authenticate(username, password)
+    role = _username.role(username)
+
+    if auth == True:
+        if role == 'admin' or role == 'annotator':
+            _atlas = atlas.Atlas(project, dataset_id, annotator)
+            assignAnnotator = _atlas.assignAnnotator()
+            clone = _atlas.cloneDataset(columns, rows)
+            return clone
+    else:
+        return "Error in assignment and clone operation"
 
 
 @module.route("/get_all_myeloid_atlas", methods=['GET', 'POST'])

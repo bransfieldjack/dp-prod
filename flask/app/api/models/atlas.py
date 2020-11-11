@@ -35,10 +35,11 @@ Provide an atlas project name and return data based on that.
 
 class Atlas(object):
 
-    def __init__(self, project, dataset_id=None):
+    def __init__(self, project, dataset_id=None, annotator=None):
         # self.datasetId = int(datasetId)
         self.project = project.lower() # Convert received to lower case for ease of use
         self.dataset_id = dataset_id
+        self.annotator = annotator
 
     def getSamples(self):   
         """
@@ -134,3 +135,49 @@ class Atlas(object):
    
         self.getSingleDataset = json.dumps(_items)
         return self.getSingleDataset
+
+    def assignAnnotator(self):   
+        
+        # Assigns a user to a dataset to annotate. 
+        
+        if self.project == 'blood':
+                database = myclient["blood_v1"]
+                collection = database["samples"]
+
+        if self.project == 'myeloid':
+            database = myclient["imac_v1"]
+            collection = database["samples"]
+
+        dataset_id = self.dataset_id
+        annotator = self.annotator
+
+        _item = collection.find_one({'dataset_id': str(self.dataset_id)})
+
+        collection.update_one({'dataset_id': str(self.dataset_id)}, { "$set": { 'annotator': annotator } })  
+        del _item['_id']    # Delete the mongo obj id before converting to json - not needed for anything anyway. 
+
+        self.assignAnnotator = json.dumps(_item)
+        return self.assignAnnotator
+
+    def cloneDataset(self, columns, rows):   
+
+        if self.project == 'blood':
+                database = myclient["blood_v1"]
+                collection = database["cloned"]
+
+        if self.project == 'myeloid':
+            database = myclient["imac_v1"]
+            collection = database["cloned"]
+
+        try: 
+            _dict = {
+                'project': self.project,
+                'dataset_id': self.dataset_id,
+                'annotator': self.annotator['user'],
+                'columns': columns,
+                'rows': rows
+            }
+            collection.insert(_dict)
+            return "Dataset clone successful"
+        except: 
+            return "Dataset clone failed"
