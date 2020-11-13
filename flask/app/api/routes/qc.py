@@ -153,3 +153,24 @@ def get_jobs():
     return {
         "data": jobs_list
     }
+
+
+@module.route('/get_single_job', methods=['GET', 'POST'])
+def get_single_job():
+    """
+    Returns a single QC job.
+    """
+    data = request.get_json()
+    payload = data['data']
+    dataset_id = payload['id']
+    username = payload['admin']
+    date = payload['date']
+
+    myclient = pymongo.MongoClient(mongo_uri)     
+    database = myclient["qc"]
+    collection = database["jobs"]
+
+    res = collection.find_one({'ds_id': dataset_id, 'admin': username})
+    del res['_id']
+
+    return {"data": res}

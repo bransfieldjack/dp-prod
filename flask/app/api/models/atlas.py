@@ -159,7 +159,7 @@ class Atlas(object):
         self.assignAnnotator = json.dumps(_item)
         return self.assignAnnotator
 
-    def cloneDataset(self, columns, rows):   
+    def cloneDataset(self, columns, rows, date):   
 
         if self.project == 'blood':
                 database = myclient["blood_v1"]
@@ -174,6 +174,7 @@ class Atlas(object):
                 'project': self.project,
                 'dataset_id': self.dataset_id,
                 'annotator': self.annotator['user'],
+                'date': date,
                 'columns': columns,
                 'rows': rows
             }
@@ -181,3 +182,91 @@ class Atlas(object):
             return "Dataset clone successful"
         except: 
             return "Dataset clone failed"
+
+    def getAllAssigned(self):
+
+        bloodDatabase = myclient["blood_v1"]
+        bloodCollection = bloodDatabase["cloned"]
+        blood_result = bloodCollection.find()
+
+        imacDatabase = myclient["imac_v1"]
+        imacCollection = imacDatabase["cloned"]
+        imac_result = imacCollection.find()
+
+        blood_list = []
+        imac_list = []
+
+        try:
+
+            for item in blood_result:
+                del item['_id']
+                blood_list.append(item)
+
+            for item in imac_result:
+                del item['_id']
+                imac_list.append(item)
+
+            concat_results = blood_list + imac_list
+            self.getAllAssigned = {'data': concat_results}
+
+            return self.getAllAssigned
+        
+        except: 
+            return "Error, check to make sure there are jobs assigned!"
+
+    def removeJob(self, date):
+
+        if self.project == 'blood':
+                database = myclient["blood_v1"]
+                collection = database["cloned"]
+
+        if self.project == 'myeloid':
+            database = myclient["imac_v1"]
+            collection = database["cloned"]
+
+        try:
+            remove_query = { "dataset_id": self.dataset_id, "project": self.project,"annotator": self.annotator, "date": date, }
+            res = collection.delete_one(remove_query)
+            return "Document removed"
+        except: 
+            return "Job not found, unable to remove!"
+
+    def getSingleClone(self, date):   
+        
+        if self.project == 'blood':
+                database = myclient["blood_v1"]
+                collection = database["cloned"]
+
+        if self.project == 'myeloid':
+            database = myclient["imac_v1"]
+            collection = database["cloned"]
+        
+        pre_item = collection.find_one({'dataset_id': self.dataset_id, 'annotator': self.annotator, 'project': self.project, 'date': date})
+        del pre_item['_id']
+        _item = pre_item
+   
+        self.getSingleClone = json.dumps(_item)
+        return self.getSingleClone
+
+    def updateClone(self, date, column, rowIds, value):   
+        
+        if self.project == 'blood':
+                database = myclient["blood_v1"]
+                collection = database["cloned"]
+
+        if self.project == 'myeloid':
+            database = myclient["imac_v1"]
+            collection = database["cloned"]
+
+        pre_item = collection.find_one({'dataset_id': self.dataset_id, 'annotator': self.annotator, 'project': self.project, 'date': date}) # Find the document in the collection.
+
+        for item in rowIds: # Edit each sample in the list of sample ids, update with new values. 
+            update = collection.update({ "rows.sample_id": item },
+                                   { "$set": {"rows.$." + column: value }})
+
+        del pre_item['_id']
+        _item = pre_item
+        
+        return "updateClone"
+
+

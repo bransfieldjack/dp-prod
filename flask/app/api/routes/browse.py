@@ -95,7 +95,6 @@ def summary_table_search():
 def samples_update():
     data = request.get_json()
     payload = data['data']
-    print(payload)
     datasetId = payload['dataset_id']
     column = payload['column']
     rowIds = payload['rowIds']
@@ -103,6 +102,25 @@ def samples_update():
     ds = datasets.Dataset(datasetId)
     updateSampleValue = ds.updateSampleValue(column, rowIds, value)
     return updateSampleValue
+
+
+@module.route("/atlas_clone_update", methods=['GET', 'POST'])
+def atlas_clone_update():
+    data = request.get_json()
+    payload = data['data']
+    column = payload['column']
+    rowIds = payload['rowIds']
+    value = payload['value']
+
+    dataset_id = data['dataset_id']
+    annotator = data['annotator']
+    date = data['date']
+    project = data['project']
+
+    _atlas = atlas.Atlas(project, dataset_id, annotator)
+    updateClone = _atlas.updateClone(date, column, rowIds, value)
+
+    return "test"
 
 
 @module.route("/atlas_update", methods=['GET', 'POST'])
@@ -195,6 +213,7 @@ def atlasAssignAnnotator():
     annotator = data['annotator']
     username = annotator['user']
     password = data['password']
+    date = data['date']
     dataset_id = data['dataset_id']
     project = data['project']
 
@@ -206,10 +225,53 @@ def atlasAssignAnnotator():
         if role == 'admin' or role == 'annotator':
             _atlas = atlas.Atlas(project, dataset_id, annotator)
             assignAnnotator = _atlas.assignAnnotator()
-            clone = _atlas.cloneDataset(columns, rows)
+            clone = _atlas.cloneDataset(columns, rows, date)
             return clone
     else:
         return "Error in assignment and clone operation"
+
+
+@module.route('/atlas_get_jobs', methods=['GET', 'POST'])
+def atlas_get_jobs():
+    """
+    Returns all atlas datasets assigned to annotators.
+    """
+    data = request.get_json()
+    project = 'myeloid' # init value for class, but doesnt matter for this functions return value - it will return for all projects. 
+    _atlas = atlas.Atlas(project)
+    getAllAssigned = _atlas.getAllAssigned()
+    
+    return getAllAssigned
+
+
+@module.route('/atlas_get_clone', methods=['GET', 'POST'])
+def atlas_get_clone():
+    """
+    Returns a single clone. 
+    """
+    data = request.get_json()
+    date = data['date']
+    project = data['project']
+    dataset_id = data['dataset_id']
+    annotator = data['annotator']
+    _atlas = atlas.Atlas(project, dataset_id, annotator)
+    getSingleClone = _atlas.getSingleClone(date)
+    return getSingleClone
+
+
+@module.route('/atlas_remove_job', methods=['GET', 'POST'])
+def atlas_remove_job():
+    """
+    Remove assigned atlas job (admin permissions only).
+    """
+    data = request.get_json()
+    dataset_id = data['dataset_id']
+    date = data['date']
+    annotator = data['annotator']
+    project = data['project']
+    _atlas = atlas.Atlas(project, dataset_id, annotator)
+    removeJob = _atlas.removeJob(date)
+    return removeJob
 
 
 @module.route("/get_all_myeloid_atlas", methods=['GET', 'POST'])
