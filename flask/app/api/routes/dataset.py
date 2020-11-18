@@ -61,9 +61,11 @@ class lookupDatasetClass(Resource):
         json_object = json.loads(json_string)
         result = json_object[0]
 
-        if result['datasets'][0]['private'] == True:
+        print(result)
+
+        if result['private'] == 'True':
             return Response("Private dataset"  , mimetype="text/tsv", headers={"Content-disposition": datasetId})
-        elif result['datasets'][0]['private'] == False:
+        elif result['private'] == 'False':
             return Response("Public dataset"  , mimetype="text/tsv", headers={"Content-disposition": datasetId})
        
 ###########################################################################################################################################
@@ -83,7 +85,7 @@ class publicDatasetClass(Resource):
         json_object = json.loads(json_string)
         result = json_object[0]
 
-        if result['datasets'][0]['private'] == True:
+        if result['private'] == 'True':
             return Response("Error: Private dataset", mimetype="text/tsv", headers={"Content-disposition": datasetId})
 
         if dataType=="samples":
@@ -112,7 +114,7 @@ class publicDatasetExpressionClass(Resource):
         json_object = json.loads(json_string)
         result = json_object[0]
 
-        if result['datasets'][0]['private'] == True:
+        if result['private'] == 'True':
             return Response("Error: Private dataset", mimetype="text/tsv", headers={"Content-disposition": datasetId})
 
         json_string = ds.expressionMatrix(key=key).to_json(orient="split")
@@ -188,7 +190,7 @@ def getTable(datasetId, dataType):
     json_object = json.loads(json_string)
     result = json_object[0]
 
-    if result['datasets'][0]['private'] == True:
+    if result['private'] == 'True':
         return Response("Error: Private dataset", mimetype="text/tsv", headers={"Content-disposition": datasetId})
 
     if dataType=="samples":

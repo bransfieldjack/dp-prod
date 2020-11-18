@@ -3,7 +3,7 @@ ariadne==0.12.0
 attrs==19.3.0
 boto3==1.15.6
 botocore==1.18.6
-certifi==2020.6.20
+certifi==2020.11.8
 click==7.1.2
 Flask==1.1.2
 Flask-API==2.0
@@ -24,11 +24,11 @@ itsdangerous==1.1.0
 Jinja2==2.11.2
 jmespath==0.10.0
 jsonschema==3.2.0
-MarkupSafe
-mkl-fft==1.1.0
-mkl-random==1.1.1
-mkl-service==2.3.0
-numpy
+MarkupSafe==1.1.1
+# mkl-fft==1.1.0
+# mkl-random==1.1.1
+# mkl-service==2.3.0
+numpy==1.19.0
 pandas==1.1.0
 promise==2.3
 psycopg2==2.8.5
@@ -48,5 +48,6 @@ typing-extensions==3.7.4.2
 urllib3==1.25.10
 uvicorn==0.11.8
 uvloop==0.14.0
+uWSGI==2.0.19
 websockets==8.1
 Werkzeug==0.16.0

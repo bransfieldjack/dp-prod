@@ -36,7 +36,7 @@ services:
             - APP_SETTINGS=/client-volume/data/production_config.cfg
         volumes:
             - ./flask/flask-volume:/client-volume/data
-            - /expression-files-volume:/client-volume/expression-data
+            - ~/expression-files-volume:/client-volume/expression-data
         expose: 
              - 8080    
         depends_on:
@@ -52,5 +52,7 @@ services:
         ports: 
             - "80:80"   
             - "443:443"
+        depends_on:
+             - flask
         
 
